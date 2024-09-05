@@ -90,9 +90,9 @@
 
     <!-- 지도 삽입 -->
     <iframe id="osm-map" width="100%" height="300px" frameborder="0" allowfullscreen allow="geolocation"
-        src="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&layers=visible&lat=13.7563&lon=100.5018&zoom=11"></iframe>
+        src="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&layers=visible&lat=13.7563&lon=100.5018&zoom=5"></iframe>
     
-    <p><a href="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&layers=visible&lat=13.7563&lon=100.5018&zoom=11">See full screen</a></p>
+    <p><a href="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&layers=visible&lat=13.7563&lon=100.5018&zoom=5">See full screen</a></p>
 
     <!-- 환영 팝업 -->
     <div class="center-popup" id="welcome-popup">
@@ -155,6 +155,9 @@
                     // 현재 위치를 기반으로 지도를 갱신합니다.
                     var iframe = document.getElementById('osm-map');
                     iframe.src = `//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&lat=${lat}&lon=${lon}&zoom=14`;
+                }, function(error) {
+                    console.log("GPS 오류 발생:", error.message);
+                    alert("GPS 정보를 가져오는 데 실패했습니다. 위치 권한을 확인해주세요.");
                 });
             } else {
                 alert('GPS를 사용할 수 없습니다.');
