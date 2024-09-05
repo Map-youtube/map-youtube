@@ -84,6 +84,25 @@
         .top-left-popup button:hover {
             background-color: #45a049;
         }
+
+        /* 현재 위치 찾기 버튼 스타일 */
+        .location-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .location-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -119,6 +138,9 @@
         </p>
         <button onclick="closeLayerPopup()">닫기 / Close</button>
     </div>
+
+    <!-- 현재 위치 찾기 버튼 -->
+    <button class="location-btn" onclick="setMapToCurrentLocation()">내 위치 찾기</button>
 
     <script>
         let isWelcomePopupClosed = false;
@@ -163,10 +185,6 @@
             }
         }
 
-        // 모바일일 경우 GPS 기반으로 현재 위치를 설정
-        if (/Mobi|Android/i.test(navigator.userAgent)) {
-            setMapToCurrentLocation();
-        }
     </script>
 </body>
 </html>
