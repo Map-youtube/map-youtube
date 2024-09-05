@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My OSM Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <!-- 기본 스타일 -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        /* 팝업 스타일 */
+        .popup {
+            position: fixed;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 지도가 표시될 div -->
+    <div id="map"></div>
+
+    <!-- 환영 팝업 -->
+    <div class="popup" id="welcome-popup" style="display: none;">
+        <h3>안녕하세요!<br>Welcome!</h3>
+        <p>OpenStreetMap 기반의 웹사이트에 오신 것을 환영합니다!</p>
+        <button onclick="closeWelcomePopup()">닫기 / Close</button>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <script>
+        // 지도를 표시할 div 요소를 선택
+        var map = L.map('map').setView([37.5665, 126.9780], 12);  // 서울 좌표로 설정
+
+        // OpenStreetMap 타일 레이어 추가
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // 팝업 닫기 함수
+        function closeWelcomePopup() {
+            var popup = document.getElementById('welcome-popup');
+            popup.style.display = 'none';
+        }
+
+        // 일정 시간 후 환영 팝업 자동 표시
+        setTimeout(function() {
+            var popup = document.getElementById('welcome-popup');
+            popup.style.display = 'block';
+        }, 1000);
+
+    </script>
+
+</body>
+</html>
