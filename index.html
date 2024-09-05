@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My OSM Map</title>
+    <title>BEFORE YOU GO - OSM</title>
     
-    <!-- Leaflet CSS -->
+    <!-- Leaflet.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    
-    <!-- 기본 스타일 -->
+
     <style>
         html, body {
             height: 100%;
@@ -17,56 +15,142 @@
             padding: 0;
         }
         #map {
-            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
         }
-        /* 팝업 스타일 */
-        .popup {
+        /* 중앙 팝업 스타일 */
+        .center-popup {
             position: fixed;
-            background-color: white;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
             padding: 20px;
+            background-color: white;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             z-index: 1000;
+            text-align: center;
+        }
+        .center-popup h3 {
+            margin-top: 0;
+        }
+        .center-popup p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .center-popup button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .center-popup button:hover {
+            background-color: #45a049;
+        }
+        /* 좌측 상단 팝업 스타일 */
+        .top-left-popup {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+        .top-left-popup h3 {
+            margin-top: 0;
+        }
+        .top-left-popup p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .top-left-popup button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .top-left-popup button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
 
-    <!-- 지도가 표시될 div -->
+    <!-- 지도 표시 div -->
     <div id="map"></div>
 
     <!-- 환영 팝업 -->
-    <div class="popup" id="welcome-popup" style="display: none;">
+    <div class="center-popup" id="welcome-popup">
         <h3>안녕하세요!<br>Welcome!</h3>
-        <p>OpenStreetMap 기반의 웹사이트에 오신 것을 환영합니다!</p>
+        <p>BEFORE YOU GO에 오신 것을 환영합니다.<br>Welcome to BEFORE YOU GO.</p>
+        <p>
+            원하시는 장소 (여행지, 식당, 쇼핑센터)를 선택하면<br>
+            해당 장소의 간단한 안내와 그곳을 미리 볼 수 있는<br>
+            유튜브 링크가 있습니다.<br>
+            <br>
+            Choose a place (destination, restaurant, shopping center),<br>
+            and you'll find brief information about it,<br>
+            along with a YouTube link for a preview.
+        </p>
         <button onclick="closeWelcomePopup()">닫기 / Close</button>
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- 레이어 선택 안내 팝업 -->
+    <div class="top-left-popup" id="layer-popup" style="display:none;">
+        <h3>레이어 선택 안내<br>Layer Selection Guide</h3>
+        <p>좌측 상단에 있는 메뉴를 클릭하면 장소별 레이어를 선택할 수 있습니다!<br>Click the menu at the top left to select layers for different places!</p>
+        <button onclick="closeLayerPopup()">닫기 / Close</button>
+    </div>
+
+    <!-- Leaflet.js JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
     <script>
         // 지도를 표시할 div 요소를 선택
-        var map = L.map('map').setView([37.5665, 126.9780], 12);  // 서울 좌표로 설정
+        var map = L.map('map').setView([13.7563, 100.5018], 11);  // 방콕 좌표로 설정
 
         // OpenStreetMap 타일 레이어 추가
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // 팝업 닫기 함수
+        let isWelcomePopupClosed = false;
+
+        // 환영 팝업 닫기 함수
         function closeWelcomePopup() {
-            var popup = document.getElementById('welcome-popup');
-            popup.style.display = 'none';
+            var welcomePopup = document.getElementById('welcome-popup');
+            welcomePopup.style.display = 'none';
+
+            // 환영 팝업이 닫힌 후 레이어 선택 안내 팝업 표시
+            if (!isWelcomePopupClosed) {
+                isWelcomePopupClosed = true;
+                var layerPopup = document.getElementById('layer-popup');
+                layerPopup.style.display = 'block';
+            }
         }
 
-        // 일정 시간 후 환영 팝업 자동 표시
-        setTimeout(function() {
-            var popup = document.getElementById('welcome-popup');
-            popup.style.display = 'block';
-        }, 1000);
+        // 레이어 선택 안내 팝업 닫기 함수
+        function closeLayerPopup() {
+            var layerPopup = document.getElementById('layer-popup');
+            layerPopup.style.display = 'none';
+        }
 
+        // 일정 시간 후 환영 팝업 자동 닫기 (5초 후 자동 닫힘)
+        setTimeout(closeWelcomePopup, 5000);
     </script>
 
 </body>
