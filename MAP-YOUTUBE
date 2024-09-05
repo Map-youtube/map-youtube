@@ -19,72 +19,7 @@
             height: 100%;
             border: 0;
         }
-        /* 중앙 팝업 스타일 */
-        .center-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            padding: 20px;
-            background-color: white;
-            border: 2px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-        }
-        .center-popup h3 {
-            margin-top: 0;
-        }
-        .center-popup p {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .center-popup button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .center-popup button:hover {
-            background-color: #45a049;
-        }
-        /* 좌측 상단 팝업 스타일 */
-        .top-left-popup {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 300px;
-            padding: 20px;
-            background-color: white;
-            border: 2px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-        }
-        .top-left-popup h3 {
-            margin-top: 0;
-        }
-        .top-left-popup p {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .top-left-popup button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .top-left-popup button:hover {
-            background-color: #45a049;
-        }
-
+        
         /* 현재 위치 찾기 버튼 스타일 */
         .location-btn {
             position: fixed;
@@ -108,65 +43,13 @@
 <body>
 
     <!-- 지도 삽입 -->
-    <iframe id="osm-map" width="100%" height="300px" frameborder="0" allowfullscreen allow="geolocation"
+    <iframe id="osm-map" width="100%" height="100%" frameborder="0" allowfullscreen allow="geolocation"
         src="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&lat=13.7563&lon=100.5018&zoom=5"></iframe>
-    
-    <p><a href="//umap.openstreetmap.fr/ko/map/untitled-map_1110791?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=true&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&lat=13.7563&lon=100.5018&zoom=5">See full screen</a></p>
-
-    <!-- 환영 팝업 -->
-    <div class="center-popup" id="welcome-popup">
-        <h3>안녕하세요!<br>Welcome!</h3>
-        <p>BEFORE YOU GO에 오신 것을 환영합니다.<br>Welcome to BEFORE YOU GO.</p>
-        <p>
-            원하시는 장소 (여행지, 식당, 쇼핑센터)를 선택하면<br>
-            해당 장소의 간단한 안내와 그곳을 미리 볼 수 있는<br>
-            유튜브 링크가 있습니다.<br>
-            <br>
-            Choose a place (destination, restaurant, shopping center),<br>
-            and you'll find brief information about it,<br>
-            along with a YouTube link for a preview.
-        </p>
-        <button onclick="closeWelcomePopup()">닫기 / Close</button>
-    </div>
-
-    <!-- 레이어 선택 안내 팝업 -->
-    <div class="top-left-popup" id="layer-popup" style="display:none;">
-        <h3>레이어 선택 안내<br>Layer Selection Guide</h3>
-        <p>
-            좌측 <img src="https://st3.depositphotos.com/4562487/13400/v/1600/depositphotos_134003474-stock-illustration-loading-data-icon-illustration.jpg" alt="레이어 선택 아이콘" width="20" height="20"> 을 누르시면 장소 종류별 레이어 선택이 가능합니다!<br>
-            Click the <img src="path-to-your-image.png" alt="Layer Selection Icon" width="20" height="20"> icon on the left to select layers for different types of places!
-        </p>
-        <button onclick="closeLayerPopup()">닫기 / Close</button>
-    </div>
 
     <!-- 현재 위치 찾기 버튼 -->
     <button class="location-btn" onclick="setMapToCurrentLocation()">내 위치 찾기</button>
 
     <script>
-        let isWelcomePopupClosed = false;
-
-        // 환영 팝업 닫기 함수
-        function closeWelcomePopup() {
-            var welcomePopup = document.getElementById('welcome-popup');
-            welcomePopup.style.display = 'none';
-
-            // 환영 팝업이 닫힌 후 레이어 선택 안내 팝업 표시
-            if (!isWelcomePopupClosed) {
-                isWelcomePopupClosed = true;
-                var layerPopup = document.getElementById('layer-popup');
-                layerPopup.style.display = 'block';
-            }
-        }
-
-        // 레이어 선택 안내 팝업 닫기 함수
-        function closeLayerPopup() {
-            var layerPopup = document.getElementById('layer-popup');
-            layerPopup.style.display = 'none';
-        }
-
-        // 일정 시간 후 환영 팝업 자동 닫기 (5초 후 자동 닫힘)
-        setTimeout(closeWelcomePopup, 5000);
-
         // GPS 위치를 모바일에서 사용하도록 설정하는 함수
         function setMapToCurrentLocation() {
             if (navigator.geolocation) {
@@ -184,7 +67,6 @@
                 alert('GPS를 사용할 수 없습니다.');
             }
         }
-
     </script>
 </body>
 </html>
