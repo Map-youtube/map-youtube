@@ -113,7 +113,11 @@
     <!-- 레이어 선택 안내 팝업 -->
     <div class="top-left-popup" id="layer-popup" style="display:none;">
         <h3>레이어 선택 안내<br>Layer Selection Guide</h3>
-        <p>좌측 상단에 있는 메뉴를 클릭하면 장소별 레이어를 선택할 수 있습니다!<br>Click the menu at the top left to select layers for different places!</p>
+<p>
+    좌측 <img src="https://st3.depositphotos.com/4562487/13400/v/1600/depositphotos_134003474-stock-illustration-loading-data-icon-illustration.jpg" alt="레이어 선택 아이콘" width="20" height="20"> 을 누르시면 장소 종류별 레이어 선택이 가능합니다!<br>
+    Click the <img src="path-to-your-image.png" alt="Layer Selection Icon" width="20" height="20"> icon on the left to select layers for different types of places!
+</p>
+
         <button onclick="closeLayerPopup()">닫기 / Close</button>
     </div>
 
