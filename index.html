@@ -1,146 +1,103 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEFORE YOU GO - uMap</title>
-
+    <title>My Custom Map</title>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width">
+    <meta charset="utf-8">
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
+        /* 지도 크기 설정 */
         #map {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        /* 중앙 팝업 스타일 */
-        .center-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            padding: 20px;
-            background-color: white;
-            border: 2px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-        }
-        .center-popup h3 {
-            margin-top: 0;
-        }
-        .center-popup p {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .center-popup button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .center-popup button:hover {
-            background-color: #45a049;
-        }
-        /* 좌측 상단 팝업 스타일 */
-        .top-left-popup {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 300px;
-            padding: 20px;
-            background-color: white;
-            border: 2px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-        }
-        .top-left-popup h3 {
-            margin-top: 0;
-        }
-        .top-left-popup p {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .top-left-popup button {
-            display: block;
-            margin: 20px auto 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .top-left-popup button:hover {
-            background-color: #45a049;
+            height: 100vh; /* 화면 전체 높이 */
+            width: 100%; /* 화면 전체 너비 */
         }
     </style>
 </head>
 <body>
-
-    <!-- 지도 삽입 -->
-    <iframe id="map"
-        src="https://umap.openstreetmap.fr/ko/map/untitled-map_1110791" 
-        frameborder="0" allowfullscreen>
-    </iframe>
-
-    <!-- 환영 팝업 -->
-    <div class="center-popup" id="welcome-popup">
-        <h3>안녕하세요!<br>Welcome!</h3>
-        <p>BEFORE YOU GO에 오신 것을 환영합니다.<br>Welcome to BEFORE YOU GO.</p>
-        <p>
-            원하시는 장소 (여행지, 식당, 쇼핑센터)를 선택하면<br>
-            해당 장소의 간단한 안내와 그곳을 미리 볼 수 있는<br>
-            유튜브 링크가 있습니다.<br>
-            <br>
-            Choose a place (destination, restaurant, shopping center),<br>
-            and you'll find brief information about it,<br>
-            along with a YouTube link for a preview.
-        </p>
-        <button onclick="closeWelcomePopup()">닫기 / Close</button>
-    </div>
-
-    <!-- 레이어 선택 안내 팝업 -->
-    <div class="top-left-popup" id="layer-popup" style="display:none;">
-        <h3>레이어 선택 안내<br>Layer Selection Guide</h3>
-        <p>좌측 상단에 있는 메뉴를 클릭하면 장소별 레이어를 선택할 수 있습니다!<br>Click the menu at the top left to select layers for different places!</p>
-        <button onclick="closeLayerPopup()">닫기 / Close</button>
-    </div>
-
+    <div id="map"></div>
     <script>
-        let isWelcomePopupClosed = false;
+        // API 키를 여기에 입력하세요
+        const apiKey = 'YOUR_API_KEY';
 
-        // 환영 팝업 닫기 함수
-        function closeWelcomePopup() {
-            var welcomePopup = document.getElementById('welcome-popup');
-            welcomePopup.style.display = 'none';
+        // 초기 지도 설정
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 13.7563, lng: 100.5018 }, // 방콕 중심 좌표 예시
+                zoom: 12,
+            });
 
-            // 환영 팝업이 닫힌 후 레이어 선택 안내 팝업 표시
-            if (!isWelcomePopupClosed) {
-                isWelcomePopupClosed = true;
-                var layerPopup = document.getElementById('layer-popup');
-                layerPopup.style.display = 'block';
+            // 사용자 정의 위치와 정보 목록
+            const locations = [
+                {
+                    position: { lat: 13.7563, lng: 100.5018 },
+                    title: "방콕 카페",
+                    description: "이곳은 아름다운 카페입니다.",
+                    features: "독특한 인테리어, 다양한 디저트",
+                    note: "아침 9시부터 운영합니다.",
+                },
+                {
+                    position: { lat: 13.7373, lng: 100.5521 },
+                    title: "방콕 호텔",
+                    description: "편안한 호텔입니다.",
+                    features: "수영장, 무료 조식",
+                    note: "체크인: 14:00, 체크아웃: 12:00",
+                },
+            ];
+
+            // 마커와 정보창 추가
+            locations.forEach((location) => {
+                const marker = new google.maps.Marker({
+                    position: location.position,
+                    map: map,
+                    title: location.title,
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <h3>${location.title}</h3>
+                        <p><strong>소개:</strong> ${location.description}</p>
+                        <p><strong>특징:</strong> ${location.features}</p>
+                        <p><strong>메모:</strong> ${location.note}</p>
+                    `,
+                });
+
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+            });
+
+            // 모바일 환경에서 현재 위치 표시
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+
+                        // 현재 위치에 마커 추가
+                        const userMarker = new google.maps.Marker({
+                            position: userLocation,
+                            map: map,
+                            title: "내 위치",
+                            icon: {
+                                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                            },
+                        });
+
+                        // 지도를 현재 위치로 이동
+                        map.setCenter(userLocation);
+                    },
+                    () => {
+                        alert("현재 위치를 가져올 수 없습니다.");
+                    }
+                );
+            } else {
+                alert("이 브라우저는 GPS를 지원하지 않습니다.");
             }
         }
-
-        // 레이어 선택 안내 팝업 닫기 함수
-        function closeLayerPopup() {
-            var layerPopup = document.getElementById('layer-popup');
-            layerPopup.style.display = 'none';
-        }
-
-        // 일정 시간 후 환영 팝업 자동 닫기 (5초 후 자동 닫힘)
-        setTimeout(closeWelcomePopup, 5000);
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap">
     </script>
 </body>
 </html>
