@@ -1,140 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>My Custom Map</title>
-    <meta name="viewport" content="initial-scale=1.0, width=device-width">
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Location Info</title>
     <style>
         #map {
-            height: 100vh; /* 화면 전체 높이 */
-            width: 100%; /* 화면 전체 너비 */
-        }
-
-        #current-location-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 5;
-            background-color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
+            height: 100vh;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <!-- 지도 -->
+    <h1>내가 원하는 위치 정보</h1>
     <div id="map"></div>
 
-    <!-- 현재 위치 버튼 -->
-    <button id="current-location-btn">현재 위치 찾기</button>
-
     <script>
-        let map;
-        let markers = [];
-
-        // 초기 지도 설정
         function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 13.7563, lng: 100.5018 }, // 방콕 중심 좌표 예시
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 37.7749, lng: -122.4194 }, // 샌프란시스코 좌표 예시
                 zoom: 12,
             });
 
-            // 사용자 정의 위치와 정보 목록
             const locations = [
                 {
-                    place: "방콕 카페",
-                    address: "123 방콕 거리",
-                    position: { lat: 13.7563, lng: 100.5018 },
-                    youtubeLink: "https://www.youtube.com/watch?v=123456",
-                    businessHours: "아침 9시 ~ 저녁 8시",
-                    description: "이곳은 아름다운 카페입니다.",
-                    features: "독특한 인테리어, 다양한 디저트",
-                    note: "아침 9시부터 운영합니다."
+                    position: { lat: 37.7749, lng: -122.4194 },
+                    title: "샌프란시스코",
+                    description: "샌프란시스코의 주요 명소입니다.",
+                    youtubeLink: "https://youtu.be/example",
+                    hours: "9:00 AM - 6:00 PM",
                 },
-                {
-                    place: "방콕 호텔",
-                    address: "456 방콕 로드",
-                    position: { lat: 13.7373, lng: 100.5521 },
-                    youtubeLink: "https://www.youtube.com/watch?v=654321",
-                    businessHours: "24시간",
-                    description: "편안한 호텔입니다.",
-                    features: "수영장, 무료 조식",
-                    note: "체크인: 14:00, 체크아웃: 12:00"
-                },
+                // 추가 장소 목록
             ];
 
-            // 마커와 정보창 추가
             locations.forEach((location) => {
                 const marker = new google.maps.Marker({
                     position: location.position,
-                    title: location.place,
+                    map: map,
+                    title: location.title,
                 });
 
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
-                        <h3>${location.place}</h3>
-                        <p><strong>주소:</strong> ${location.address}</p>
-                        <p><strong>소개:</strong> ${location.description}</p>
-                        <p><strong>특징:</strong> ${location.features}</p>
-                        <p><strong>영업시간:</strong> ${location.businessHours}</p>
-                        <p><a href="${location.youtubeLink}" target="_blank">유튜브 링크</a></p>
-                        <p><strong>메모:</strong> ${location.note}</p>
+                        <h3>${location.title}</h3>
+                        <p>${location.description}</p>
+                        <p><a href="${location.youtubeLink}" target="_blank">YouTube Link</a></p>
+                        <p><strong>영업시간:</strong> ${location.hours}</p>
                     `,
                 });
 
-                marker.addListener("click", () => {
+                marker.addListener('click', () => {
                     infoWindow.open(map, marker);
                 });
-
-                markers.push(marker);
-            });
-
-            // 줌 레벨에 따른 마커 표시
-            map.addListener("zoom_changed", () => {
-                const zoomLevel = map.getZoom();
-                if (zoomLevel > 14) {
-                    markers.forEach(marker => marker.setMap(map));
-                } else {
-                    markers.forEach(marker => marker.setMap(null));
-                }
-            });
-
-            // 현재 위치 버튼 클릭 이벤트
-            document.getElementById('current-location-btn').addEventListener('click', () => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const userLocation = {
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                            };
-
-                            const userMarker = new google.maps.Marker({
-                                position: userLocation,
-                                map: map,
-                                title: "내 위치",
-                                icon: {
-                                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                                },
-                            });
-
-                            map.setCenter(userLocation);
-                        },
-                        () => {
-                            alert("현재 위치를 가져올 수 없습니다.");
-                        }
-                    );
-                } else {
-                    alert("이 브라우저는 GPS를 지원하지 않습니다.");
-                }
             });
         }
     </script>
 
-    <!-- Google Maps API 로드 -->
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap">
-    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
 </body>
 </html>
