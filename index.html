@@ -35,9 +35,12 @@
         // API 키를 여기에 입력하세요
         const apiKey = 'YOUR_API_KEY';
 
+        let map;
+        let markers = [];
+
         // 초기 지도 설정
         function initMap() {
-            const map = new google.maps.Map(document.getElementById("map"), {
+            map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 13.7563, lng: 100.5018 }, // 방콕 중심 좌표 예시
                 zoom: 12,
             });
@@ -61,7 +64,6 @@
             ];
 
             // 마커와 정보창 추가
-            const markers = [];
             locations.forEach((location) => {
                 const marker = new google.maps.Marker({
                     position: location.position,
@@ -95,9 +97,9 @@
                 }
             });
 
-            // 모바일 환경에서 현재 위치 표시
-            if (navigator.geolocation) {
-                document.getElementById('current-location-btn').addEventListener('click', () => {
+            // 현재 위치 찾기 버튼 클릭 이벤트
+            document.getElementById('current-location-btn').addEventListener('click', () => {
+                if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
                             const userLocation = {
@@ -122,12 +124,14 @@
                             alert("현재 위치를 가져올 수 없습니다.");
                         }
                     );
-                });
-            } else {
-                alert("이 브라우저는 GPS를 지원하지 않습니다.");
-            }
+                } else {
+                    alert("이 브라우저는 GPS를 지원하지 않습니다.");
+                }
+            });
         }
     </script>
+
+    <!-- Google Maps API 로드 -->
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
     </script>
