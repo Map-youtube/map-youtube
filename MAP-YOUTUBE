@@ -5,13 +5,11 @@
     <meta name="viewport" content="initial-scale=1.0, width=device-width">
     <meta charset="utf-8">
     <style>
-        /* 지도 크기 설정 */
         #map {
             height: 100vh; /* 화면 전체 높이 */
             width: 100%; /* 화면 전체 너비 */
         }
 
-        /* 현재 위치 버튼 스타일 */
         #current-location-btn {
             position: absolute;
             top: 10px;
@@ -32,9 +30,6 @@
     <button id="current-location-btn">현재 위치 찾기</button>
 
     <script>
-        // API 키를 여기에 입력하세요
-        const apiKey = 'YOUR_API_KEY';
-
         let map;
         let markers = [];
 
@@ -48,18 +43,24 @@
             // 사용자 정의 위치와 정보 목록
             const locations = [
                 {
+                    place: "방콕 카페",
+                    address: "123 방콕 거리",
                     position: { lat: 13.7563, lng: 100.5018 },
-                    title: "방콕 카페",
+                    youtubeLink: "https://www.youtube.com/watch?v=123456",
+                    businessHours: "아침 9시 ~ 저녁 8시",
                     description: "이곳은 아름다운 카페입니다.",
                     features: "독특한 인테리어, 다양한 디저트",
-                    note: "아침 9시부터 운영합니다.",
+                    note: "아침 9시부터 운영합니다."
                 },
                 {
+                    place: "방콕 호텔",
+                    address: "456 방콕 로드",
                     position: { lat: 13.7373, lng: 100.5521 },
-                    title: "방콕 호텔",
+                    youtubeLink: "https://www.youtube.com/watch?v=654321",
+                    businessHours: "24시간",
                     description: "편안한 호텔입니다.",
                     features: "수영장, 무료 조식",
-                    note: "체크인: 14:00, 체크아웃: 12:00",
+                    note: "체크인: 14:00, 체크아웃: 12:00"
                 },
             ];
 
@@ -67,14 +68,17 @@
             locations.forEach((location) => {
                 const marker = new google.maps.Marker({
                     position: location.position,
-                    title: location.title,
+                    title: location.place,
                 });
 
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
-                        <h3>${location.title}</h3>
+                        <h3>${location.place}</h3>
+                        <p><strong>주소:</strong> ${location.address}</p>
                         <p><strong>소개:</strong> ${location.description}</p>
                         <p><strong>특징:</strong> ${location.features}</p>
+                        <p><strong>영업시간:</strong> ${location.businessHours}</p>
+                        <p><a href="${location.youtubeLink}" target="_blank">유튜브 링크</a></p>
                         <p><strong>메모:</strong> ${location.note}</p>
                     `,
                 });
@@ -83,21 +87,20 @@
                     infoWindow.open(map, marker);
                 });
 
-                // 마커를 배열에 저장 (초기에는 지도에 추가하지 않음)
                 markers.push(marker);
             });
 
-            // 지도 줌 레벨에 따른 마커 표시 제어
+            // 줌 레벨에 따른 마커 표시
             map.addListener("zoom_changed", () => {
                 const zoomLevel = map.getZoom();
                 if (zoomLevel > 14) {
-                    markers.forEach(marker => marker.setMap(map)); // 줌이 14 이상일 때 마커 표시
+                    markers.forEach(marker => marker.setMap(map));
                 } else {
-                    markers.forEach(marker => marker.setMap(null)); // 줌이 14 이하일 때 마커 숨김
+                    markers.forEach(marker => marker.setMap(null));
                 }
             });
 
-            // 현재 위치 찾기 버튼 클릭 이벤트
+            // 현재 위치 버튼 클릭 이벤트
             document.getElementById('current-location-btn').addEventListener('click', () => {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
@@ -107,7 +110,6 @@
                                 lng: position.coords.longitude,
                             };
 
-                            // 현재 위치에 마커 추가
                             const userMarker = new google.maps.Marker({
                                 position: userLocation,
                                 map: map,
@@ -117,7 +119,6 @@
                                 },
                             });
 
-                            // 지도를 현재 위치로 이동
                             map.setCenter(userLocation);
                         },
                         () => {
@@ -133,7 +134,7 @@
 
     <!-- Google Maps API 로드 -->
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
     </script>
 </body>
 </html>
