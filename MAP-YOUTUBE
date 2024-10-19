@@ -84,7 +84,7 @@
 
                 // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
-                    map.setCenter(marker.getPosition()); // 핀 위치로 지도 중심 이동
+                    map.panTo(marker.getPosition()); // 핀 위치로 지도 부드럽게 이동
                     showPopup(location.title, location.videoId, marker.getPosition());
                 });
 
