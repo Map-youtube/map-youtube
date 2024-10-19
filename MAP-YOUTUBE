@@ -65,10 +65,13 @@
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="info-box" id="infoBox">
-        <h3>가게이름 : 맛잇다식당</h3>
+        <h3>가게이름 : 맛업다식당</h3>
         <p>가게주소 : 서울군</p>
         <p>영업시간 : 1시간</p>
-        <p>YouTube Link : <a href="https://www.youtube.com/watch?v=gCWIa4TwcPc" target="_blank">https://www.youtube.com/watch?v=gCWIa4TwcPc</a></p>
+        <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">https://www.youtube.com/watch?v=gCWIa4TwcPc</a></p>
+        <div id="youtubeEmbed" style="display:none;">
+            <iframe width="280" height="157" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
     </div>
 
     <script>
@@ -106,6 +109,23 @@
                     const zoom = map.getZoom();
                     marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
                 });
+            });
+
+            document.getElementById("youtubeLink").addEventListener("click", function(event) {
+                event.preventDefault(); // 기본 링크 동작 방지
+                const videoId = locations[0].videoId;
+                const videoLink = `https://www.youtube.com/embed/${videoId}`;
+                
+                if (window.innerWidth <= 768) {
+                    // 모바일 환경에서 자동 스크롤 및 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                    window.scrollTo(0, document.body.scrollHeight); // 페이지 아래로 스크롤
+                } else {
+                    // PC 환경에서 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                }
             });
         }
 
