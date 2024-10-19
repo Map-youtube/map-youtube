@@ -17,6 +17,7 @@
         #locationButton {
             margin: 10px;
             padding: 10px;
+            display: block; /* 기본적으로 모바일에서는 표시 */
         }
         .info-box {
             position: absolute;
@@ -37,6 +38,12 @@
                 bottom: 5px; /* 모바일에서 안내창 위치 조정 */
             }
         }
+        /* PC 환경에서 "현재 위치 보기" 버튼 숨기기 */
+        @media (min-width: 769px) {
+            #locationButton {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -52,6 +59,7 @@
         let userCircle;
         let watchId; // 위치 추적 ID
         let isTracking = false; // 현재 위치 추적 중인지 여부
+        let firstClick = true; // 버튼 첫 클릭 여부 확인
 
         function initMap() {
             // 맵 초기화
@@ -93,11 +101,17 @@
                     };
                     updateUserMarker(pos);
 
-                    // "현재 위치 보기" 버튼을 눌렀을 때만 지도 중심 이동
-                    if (isTracking) {
+                    // "현재 위치 보기" 버튼을 처음 누를 때
+                    if (isTracking && firstClick) {
                         map.panTo(pos); // 부드러운 애니메이션으로 현재 위치로 이동
-                        map.setZoom(15); // 지도를 확대
-                        isTracking = false; // 한 번 이동 후 트래킹 중지
+                        map.setZoom(16); // 첫 클릭 시 현재보다 한 단계 더 확대
+                        firstClick = false; // 첫 클릭 이후에는 확대하지 않도록 설정
+                        isTracking = false;
+                    } 
+                    // 두 번째 이상 클릭 시 확대하지 않고 자연스럽게 이동만
+                    else if (isTracking && !firstClick) {
+                        map.panTo(pos); // 확대 없이 자연스럽게 이동
+                        isTracking = false;
                     }
                 }, () => {
                     alert("위치 정보를 가져올 수 없습니다.");
