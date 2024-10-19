@@ -38,10 +38,22 @@
                 bottom: 5px; /* 모바일에서 안내창 위치 조정 */
             }
         }
-        /* PC 환경에서 "현재 위치 보기" 버튼 숨기기 */
+        /* PC 환경에서 화면 비율 조정 */
         @media (min-width: 769px) {
+            #map {
+                width: 60%;
+                height: 600px;
+                float: left; /* 지도 왼쪽 배치 */
+            }
+            .info-box {
+                position: static; /* 절대 위치 해제 */
+                width: 40%;
+                float: left; /* 안내 창 오른쪽 배치 */
+                height: 600px; /* 지도와 같은 높이 */
+                overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
+            }
             #locationButton {
-                display: none;
+                display: none; /* PC에서는 위치 버튼 숨김 */
             }
         }
     </style>
@@ -57,23 +69,20 @@
         let map;
         let userMarker;
         let userCircle;
-        let watchId; // 위치 추적 ID
-        let isTracking = false; // 현재 위치 추적 중인지 여부
-        let firstClick = true; // 버튼 첫 클릭 여부 확인
+        let watchId;
+        let isTracking = false;
+        let firstClick = true;
 
         function initMap() {
-            // 맵 초기화
             map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 12.7882166, lng: 101.135258 }, // 라용 중심
+                center: { lat: 12.7882166, lng: 101.135258 },
                 zoom: 10,
             });
 
-            // 마커를 추가할 위치 (여행지 또는 식당)
             const locations = [
                 { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
-            // 위치에 대한 마커 생성
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -81,42 +90,36 @@
                     title: location.title,
                 });
 
-                // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
                     showInfoBox(location.title, location.videoId, marker.getPosition());
-                    map.panTo(marker.getPosition()); // 핀 클릭 시 지도 중심 애니메이션 이동
+                    map.panTo(marker.getPosition());
                 });
             });
         }
 
-        // 현재 위치 추적 함수
         function trackUserLocation() {
             if (navigator.geolocation) {
-                // 위치가 변할 때마다 업데이트
                 watchId = navigator.geolocation.watchPosition(position => {
                     const pos = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
-                        heading: position.coords.heading || 0 // 진행 방향
+                        heading: position.coords.heading || 0
                     };
                     updateUserMarker(pos);
 
-                    // "현재 위치 보기" 버튼을 처음 누를 때
                     if (isTracking && firstClick) {
-                        map.panTo(pos); // 부드러운 애니메이션으로 현재 위치로 이동
-                        map.setZoom(16); // 첫 클릭 시 현재보다 한 단계 더 확대
-                        firstClick = false; // 첫 클릭 이후에는 확대하지 않도록 설정
+                        map.panTo(pos);
+                        map.setZoom(16);
+                        firstClick = false;
                         isTracking = false;
-                    } 
-                    // 두 번째 이상 클릭 시 확대하지 않고 자연스럽게 이동만
-                    else if (isTracking && !firstClick) {
-                        map.panTo(pos); // 확대 없이 자연스럽게 이동
+                    } else if (isTracking && !firstClick) {
+                        map.panTo(pos);
                         isTracking = false;
                     }
                 }, () => {
                     alert("위치 정보를 가져올 수 없습니다.");
                 }, {
-                    enableHighAccuracy: true, // 높은 정확도 사용
+                    enableHighAccuracy: true,
                     maximumAge: 0,
                     timeout: 5000
                 });
@@ -125,28 +128,25 @@
             }
         }
 
-        // 사용자 현재 위치에 마커 및 진행 방향 표시 업데이트
         function updateUserMarker(position) {
             if (!userMarker) {
-                // 최초에는 마커와 원을 생성
                 userMarker = new google.maps.Marker({
                     position: { lat: position.lat, lng: position.lng },
                     map: map,
                     title: "현재 위치",
                     icon: {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
                         scale: 5,
-                        rotation: position.heading, // 진행 방향에 따라 마커 회전
+                        rotation: position.heading,
                         fillColor: "blue",
                         fillOpacity: 1,
                         strokeWeight: 2
                     }
                 });
 
-                // 현재 위치 주변에 원 추가 (예: 정확도 범위)
                 userCircle = new google.maps.Circle({
                     center: { lat: position.lat, lng: position.lng },
-                    radius: 50, // 정확도 범위
+                    radius: 50,
                     map: map,
                     fillColor: '#ADD8E6',
                     fillOpacity: 0.3,
@@ -155,7 +155,6 @@
                     strokeWeight: 2
                 });
             } else {
-                // 마커와 원의 위치를 업데이트
                 userMarker.setPosition({ lat: position.lat, lng: position.lng });
                 userMarker.setIcon({
                     path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
@@ -170,7 +169,6 @@
             }
         }
 
-        // 안내 정보를 표시하는 함수
         function showInfoBox(title, videoId, position) {
             const infoBox = document.getElementById("infoBox");
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
@@ -181,13 +179,12 @@
             infoBox.style.display = 'block';
         }
 
-        // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 트래킹 활성화
         document.getElementById("locationButton").addEventListener("click", () => {
-            isTracking = true; // 버튼을 누를 때마다 트래킹 재활성화
-            trackUserLocation(); // 현재 위치 추적
+            isTracking = true;
+            trackUserLocation();
         });
 
-        window.onload = initMap; // 페이지 로드 시 맵 초기화
+        window.onload = initMap;
     </script>
 </body>
 </html>
