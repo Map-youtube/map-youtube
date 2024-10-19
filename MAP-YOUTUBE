@@ -64,7 +64,7 @@
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
-    <div class="info-box" id="infoBox">안내 정보가 여기에 표시됩니다.</div>
+    <div class="info-box" id="infoBox"></div>
 
     <script>
         let map;
@@ -81,7 +81,7 @@
             });
 
             const locations = [
-                { title: "맛집 ㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛잇다식당", address: "서울군", hours: "1시간", videoId: "gCWIa4TwcPc", lat: 12.7874027, lng: 101.135227 }
             ];
 
             locations.forEach(location => {
@@ -92,7 +92,7 @@
                 });
 
                 marker.addListener("click", () => {
-                    showInfoBox(location.title, location.videoId, marker.getPosition());
+                    showInfoBox(location.title, location.address, location.hours, location.videoId, marker.getPosition());
                     map.panTo(marker.getPosition());
                 });
                 
@@ -176,12 +176,15 @@
             }
         }
 
-        function showInfoBox(title, videoId, position) {
+        function showInfoBox(title, address, hours, videoId, position) {
             const infoBox = document.getElementById("infoBox");
-            const videoLink = `https://www.youtube.com/embed/${videoId}`;
+            const videoLink = `https://www.youtube.com/watch?v=${videoId}`;
+            
             infoBox.innerHTML = `
-                <h3>${title}</h3>
-                <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
+                <h3>가게이름 : ${title}</h3>
+                <p>가게주소 : ${address}</p>
+                <p>영업시간 : ${hours}</p>
+                <p>YouTube Link : <a href="${videoLink}" target="_blank">${videoLink}</a></p>
             `;
             infoBox.style.display = 'block';
         }
