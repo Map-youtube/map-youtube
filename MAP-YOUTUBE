@@ -12,7 +12,7 @@
             font-family: Arial, sans-serif;
         }
         #map {
-            height: 800px;
+            height: 600px;
             width: 100%;
         }
         .popup {
@@ -40,18 +40,18 @@
         let map;
         let marker;
         let userMarker;
-        const visibilityZoomLevel = 14; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
+        const visibilityZoomLevel = 16; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
 
         function initMap() {
             // 맵 초기화
             map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 37.564213, lng: 127.001698 }, // 서울 중심
-                zoom: 11,
+                zoom: 10,
             });
 
             // 마커를 추가할 위치 (여행지 또는 식당)
             const locations = [
-                { title: "맛집 A", lat: 37.570000, lng: 127.003000, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 B", lat: 37.570000, lng: 127.003000, videoId: "a1BcD2EfGHQ" }
 
             ];
 
