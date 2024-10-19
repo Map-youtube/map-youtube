@@ -60,8 +60,6 @@
         let map;
         let userMarker;
         let userCircle;
-        let isTracking = false; // 현재 위치 추적 중인지 여부를 나타내는 플래그
-        const visibilityZoomLevel = 16; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
 
         function initMap() {
             // 맵 초기화
@@ -87,7 +85,6 @@
                 marker.addListener("click", () => {
                     showPopup(location.title, location.videoId, marker.getPosition());
                     map.setCenter(marker.getPosition()); // 마커 클릭 시 지도 중심 이동
-                    map.setZoom(15); // 지도 확대
                 });
 
                 // 지도 확대/축소 이벤트 감지 및 마커 표시/숨기기
@@ -100,7 +97,6 @@
         // 현재 위치 추적 함수 (실시간 트래킹)
         function getLocationAndTrack() {
             if (navigator.geolocation) {
-                // 위치가 변할 때마다 업데이트
                 navigator.geolocation.watchPosition(position => {
                     const pos = {
                         lat: position.coords.latitude,
@@ -111,7 +107,7 @@
                 }, () => {
                     handleLocationError(true);
                 }, {
-                    enableHighAccuracy: true, // 높은 정확도 사용
+                    enableHighAccuracy: true,
                     maximumAge: 0,
                     timeout: 5000
                 });
@@ -126,29 +122,27 @@
                 userMarker.setMap(null); // 기존 핀 제거
             }
             
-            // 현재 위치를 나타내는 파란색 마커
             userMarker = new google.maps.Marker({
                 position: { lat: position.lat, lng: position.lng },
                 map: map,
                 title: "현재 위치",
                 icon: {
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
                     scale: 5,
-                    rotation: position.heading, // 진행 방향에 따라 마커 회전
+                    rotation: position.heading,
                     fillColor: "blue",
                     fillOpacity: 1,
                     strokeWeight: 2
                 }
             });
 
-            // 현재 위치 주변에 원 추가 (예: 정확도 범위)
             if (userCircle) {
                 userCircle.setMap(null); // 기존 원 제거
             }
             
             userCircle = new google.maps.Circle({
                 center: { lat: position.lat, lng: position.lng },
-                radius: 50, // 정확도 범위 (예시)
+                radius: 50,
                 map: map,
                 fillColor: '#ADD8E6',
                 fillOpacity: 0.3,
@@ -175,28 +169,39 @@
             const point = projection.fromLatLngToPoint(position);
             
             popup.style.left = `${point.x}px`;
-            popup.style.top = `${point.y - 50}px`; // 말풍선 효과를 위해 조정
+            
+            // 팝업을 지도 중심에 표시하고 핀을 그 아래에 보이도록 설정
+            popup.style.top = `${point.y - popup.offsetHeight - 10}px`; // 팝업 아래로 핀 위치 조정
             
             popup.style.display = 'block';
             backdrop.style.display = 'block'; // 배경 표시
+            
+             // 핀 위치 조정
+             const marker = new google.maps.Marker({
+                 position,
+                 map,
+                 title,
+             });
+             marker.setMap(map); // 핀을 다시 지도에 표시
+             map.setCenter(position); // 핀과 팝업을 함께 중심으로 이동
         }
 
         // 팝업 닫기 함수
         function closePopup() {
-            const popup = document.getElementById("popup");
-            const backdrop = document.getElementById("backdrop");
-            
-            popup.style.display = 'none';
-            backdrop.style.display = 'none'; // 배경 숨기기
-        }
+           const popup = document.getElementById("popup");
+           const backdrop = document.getElementById("backdrop");
+           
+           popup.style.display = 'none';
+           backdrop.style.display = 'none'; // 배경 숨기기
+       }
 
-        // 에러 처리 함수
-        function handleLocationError(browserHasGeolocation) {
-            const infoWindow = new google.maps.InfoWindow();
-            infoWindow.setPosition(map.getCenter());
-            infoWindow.setContent(browserHasGeolocation ? 
-                                   "Error: The Geolocation service failed." : 
-                                   "Error: Your browser doesn't support geolocation.");
+       // 에러 처리 함수
+       function handleLocationError(browserHasGeolocation) {
+           const infoWindow = new google.maps.InfoWindow();
+           infoWindow.setPosition(map.getCenter());
+           infoWindow.setContent(browserHasGeolocation ? 
+                                  "Error: The Geolocation service failed." : 
+                                  "Error: Your browser doesn't support geolocation.");
            infoWindow.open(map);
        }
 
