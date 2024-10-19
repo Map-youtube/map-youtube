@@ -93,7 +93,8 @@
                         heading: position.coords.heading || 0 // 진행 방향 (heading)
                     };
                     setUserMarker(pos);
-                    map.setCenter(pos); // 위치만 중앙에 설정, 확대/축소는 자동으로 설정하지 않음
+                    map.setCenter(pos); // 위치를 중앙에 설정
+                    map.setZoom(15); // 지도를 확대 (사용자 요구 사항 반영)
                 }, () => {
                     handleLocationError(true);
                 }, {
@@ -174,7 +175,11 @@
         }
 
         // 버튼 클릭 시 현재 위치 보기 및 실시간 위치 추적
-        document.getElementById("locationButton").addEventListener("click", getLocationAndTrack);
+        document.getElementById("locationButton").addEventListener("click", () => {
+            getLocationAndTrack();
+            map.setOptions({ draggable: true, zoomControl: true }); // 사용자 지도 이동 및 줌 가능
+        });
+
         window.onload = initMap; // 페이지 로드 시 맵 초기화
     </script>
 </body>
