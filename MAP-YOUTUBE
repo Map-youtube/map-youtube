@@ -9,10 +9,15 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #map-container {
+            width: 100%;
         }
         #map {
             height: 600px; /* 기본 높이 */
-            width: 100%;
+            width: 100%; /* 기본적으로 모바일에서는 100% */
         }
         #locationButton {
             margin: 10px;
@@ -37,11 +42,44 @@
             .info-box {
                 bottom: 5px; /* 모바일에서 안내창 위치 조정 */
             }
-        }
-        /* PC 환경에서 "현재 위치 보기" 버튼 숨기기 */
-        @media (min-width: 769px) {
             #locationButton {
-                display: none;
+                display: block; /* 모바일에서만 버튼 보이게 */
+            }
+        }
+        /* PC 환경에서 레이아웃 수정 */
+        @media (min-width: 769px) {
+            body {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #map-container {
+                display: flex;
+                width: 100%;
+                max-width: 1200px; /* 전체 화면 폭 조정 */
+                margin: 0 auto;
+            }
+            #map {
+                width: 60%; /* 지도는 화면의 60% 차지 */
+                height: 600px; /* 지도 높이는 고정 */
+            }
+            .info-panel {
+                width: 40%; /* 안내창은 40% */
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-left: 1px solid #ccc;
+                box-sizing: border-box;
+                height: 600px; /* 지도와 동일한 높이 */
+            }
+            #locationButton {
+                display: none; /* PC 환경에서는 버튼 숨김 */
+            }
+            h1 {
+                position: absolute;
+                top: 10px;
+                left: 10px; /* 제목을 왼쪽 상단에 고정 */
+                margin: 0;
+                padding: 0;
             }
         }
     </style>
@@ -50,8 +88,13 @@
 
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
-    <div id="map"></div>
-    <div class="info-box" id="infoBox">안내 정보가 여기에 표시됩니다.</div>
+    <div id="map-container">
+        <div id="map"></div>
+        <div class="info-panel" id="infoBox">
+            <h3>안내 정보</h3>
+            <p>여기에 핀의 상세 정보를 표시합니다.</p>
+        </div>
+    </div>
 
     <script>
         let map;
@@ -70,7 +113,7 @@
 
             // 마커를 추가할 위치 (여행지 또는 식당)
             const locations = [
-                { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             // 위치에 대한 마커 생성
