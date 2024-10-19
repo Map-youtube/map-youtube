@@ -164,18 +164,18 @@
                 <button class="popup-close-btn" onclick="closePopup()">닫기</button>
             `;
             
-            // 팝업 위치 설정
-            const projection = map.getProjection();
-            const point = projection.fromLatLngToPoint(position);
-            
-            popup.style.left = `${point.x}px`;
-            
-            // 팝업을 지도 중심에 표시하고 핀을 그 아래에 보이도록 설정
-            popup.style.top = `${point.y - popup.offsetHeight - 10}px`; // 팝업 아래로 핀 위치 조정
-            
-            popup.style.display = 'block';
-            backdrop.style.display = 'block'; // 배경 표시
-            
+             // 팝업 위치 설정
+             const projection = map.getProjection();
+             const point = projection.fromLatLngToPoint(position);
+             
+             popup.style.left = `${point.x}px`;
+             
+             // 팝업을 지도 중심에 표시하고 핀을 그 아래에 보이도록 설정
+             popup.style.top = `${point.y - popup.offsetHeight - 10}px`; // 팝업 아래로 핀 위치 조정
+
+             popup.style.display = 'block';
+             backdrop.style.display = 'block'; // 배경 표시
+
              // 핀 위치 조정
              const marker = new google.maps.Marker({
                  position,
@@ -183,11 +183,10 @@
                  title,
              });
              marker.setMap(map); // 핀을 다시 지도에 표시
-             map.setCenter(position); // 핀과 팝업을 함께 중심으로 이동
-        }
+         }
 
-        // 팝업 닫기 함수
-        function closePopup() {
+         // 팝업 닫기 함수
+         function closePopup() {
            const popup = document.getElementById("popup");
            const backdrop = document.getElementById("backdrop");
            
