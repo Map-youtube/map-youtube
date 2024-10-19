@@ -76,7 +76,7 @@
                 // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
                     showInfoBox(location.title, location.videoId, marker.getPosition());
-                    map.setCenter(marker.getPosition()); // 핀 클릭 시 지도 중심 이동
+                    map.panTo(marker.getPosition()); // 핀 클릭 시 지도 중심 애니메이션 이동
                 });
             });
         }
@@ -91,11 +91,11 @@
                         lng: position.coords.longitude,
                         heading: position.coords.heading || 0 // 진행 방향
                     };
-                    setUserMarker(pos);
+                    updateUserMarker(pos);
 
                     // "현재 위치 보기" 버튼을 눌렀을 때만 지도 중심 이동
                     if (isTracking) {
-                        map.setCenter(pos);
+                        map.panTo(pos); // 부드러운 애니메이션으로 현재 위치로 이동
                         map.setZoom(15); // 지도를 확대
                         isTracking = false; // 한 번 이동 후 트래킹 중지
                     }
@@ -111,39 +111,49 @@
             }
         }
 
-        // 사용자 현재 위치에 마커 및 진행 방향 표시
-        function setUserMarker(position) {
-            if (userMarker) {
-                userMarker.setMap(null); // 기존 마커 제거
-            }
-            userMarker = new google.maps.Marker({
-                position: { lat: position.lat, lng: position.lng },
-                map: map,
-                title: "현재 위치",
-                icon: {
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
+        // 사용자 현재 위치에 마커 및 진행 방향 표시 업데이트
+        function updateUserMarker(position) {
+            if (!userMarker) {
+                // 최초에는 마커와 원을 생성
+                userMarker = new google.maps.Marker({
+                    position: { lat: position.lat, lng: position.lng },
+                    map: map,
+                    title: "현재 위치",
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
+                        scale: 5,
+                        rotation: position.heading, // 진행 방향에 따라 마커 회전
+                        fillColor: "blue",
+                        fillOpacity: 1,
+                        strokeWeight: 2
+                    }
+                });
+
+                // 현재 위치 주변에 원 추가 (예: 정확도 범위)
+                userCircle = new google.maps.Circle({
+                    center: { lat: position.lat, lng: position.lng },
+                    radius: 50, // 정확도 범위
+                    map: map,
+                    fillColor: '#ADD8E6',
+                    fillOpacity: 0.3,
+                    strokeColor: '#1E90FF',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2
+                });
+            } else {
+                // 마커와 원의 위치를 업데이트
+                userMarker.setPosition({ lat: position.lat, lng: position.lng });
+                userMarker.setIcon({
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
                     scale: 5,
-                    rotation: position.heading, // 진행 방향에 따라 마커 회전
+                    rotation: position.heading,
                     fillColor: "blue",
                     fillOpacity: 1,
                     strokeWeight: 2
-                }
-            });
+                });
 
-            // 현재 위치 주변에 원 추가 (예: 정확도 범위)
-            if (userCircle) {
-                userCircle.setMap(null); // 기존 원 제거
+                userCircle.setCenter({ lat: position.lat, lng: position.lng });
             }
-            userCircle = new google.maps.Circle({
-                center: { lat: position.lat, lng: position.lng },
-                radius: 50, // 정확도 범위
-                map: map,
-                fillColor: '#ADD8E6',
-                fillOpacity: 0.3,
-                strokeColor: '#1E90FF',
-                strokeOpacity: 0.8,
-                strokeWeight: 2
-            });
         }
 
         // 안내 정보를 표시하는 함수
