@@ -30,6 +30,10 @@
             box-shadow: none; /* 그림자 효과 제거 */
             display: none; /* 초기에는 숨김 */
         }
+        #youtubeEmbed iframe {
+            width: 100%; /* 안내창 폭에 맞추어 자동 조정 */
+            height: auto; /* 높이는 비율에 따라 자동 조정 */
+        }
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
             #map {
@@ -71,7 +75,7 @@
         <p>영업시간 : <span id="storeHours"></span></p>
         <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">링크 보기</a></p>
         <div id="youtubeEmbed" style="display:none;">
-            <iframe width="280" height="157" src="" frameborder="0" allowfullscreen></iframe>
+            <iframe src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -117,15 +121,12 @@
                 const videoId = locations[0].videoId;
                 const videoLink = `https://www.youtube.com/embed/${videoId}`;
                 
+                // 안내창의 폭에 맞춰 유튜브 영상 크기 설정
+                document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                document.getElementById("youtubeEmbed").style.display = 'block';
+
                 if (window.innerWidth <= 768) {
-                    // 모바일 환경에서 자동 스크롤 및 영상 표시
-                    document.getElementById("youtubeEmbed").style.display = 'block';
-                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
-                    window.scrollTo(0, document.body.scrollHeight); // 페이지 아래로 스크롤
-                } else {
-                    // PC 환경에서 영상 표시
-                    document.getElementById("youtubeEmbed").style.display = 'block';
-                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                    window.scrollTo(0, document.body.scrollHeight); // 모바일 환경에서는 자동 스크롤
                 }
             });
         }
