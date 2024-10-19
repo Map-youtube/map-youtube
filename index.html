@@ -14,15 +14,6 @@
             height: 600px; /* 기본 높이 */
             width: 100%;
         }
-        .popup {
-            display: none;
-            position: absolute;
-            background: white;
-            border: 1px solid black;
-            padding: 10px;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
         #locationButton {
             margin: 10px;
             padding: 10px;
@@ -59,7 +50,7 @@
         let map;
         let userMarker;
         let userCircle;
-        const visibilityZoomLevel = 16; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
+        let isTracking = false; // 현재 위치 추적 중인지 여부를 나타내는 플래그
 
         function initMap() {
             // 맵 초기화
@@ -73,7 +64,7 @@
                 { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
-            // 위치에 대한 마커 생성 및 확대 수준에 따른 마커 표시
+            // 위치에 대한 마커 생성
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -89,6 +80,70 @@
             });
         }
 
+        // 현재 위치 추적 함수 (실시간 트래킹)
+        function trackUserLocation() {
+            if (navigator.geolocation) {
+                // 위치가 변할 때마다 업데이트
+                navigator.geolocation.watchPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        heading: position.coords.heading || 0 // 진행 방향 (heading)
+                    };
+                    setUserMarker(pos);
+                    if (!isTracking) {
+                        map.setCenter(pos); // "현재 위치 보기" 버튼 클릭 시에만 위치를 중심으로
+                        map.setZoom(15); // 지도를 확대
+                        isTracking = true; // 이후로는 수동으로 지도 조작 가능
+                    }
+                }, () => {
+                    alert("위치 정보를 가져올 수 없습니다.");
+                }, {
+                    enableHighAccuracy: true, // 높은 정확도 사용
+                    maximumAge: 0,
+                    timeout: 5000
+                });
+            } else {
+                alert("브라우저가 위치 서비스를 지원하지 않습니다.");
+            }
+        }
+
+        // 사용자 현재 위치에 마커 및 진행 방향 표시
+        function setUserMarker(position) {
+            if (userMarker) {
+                userMarker.setMap(null); // 기존 핀 제거
+            }
+            // 현재 위치를 나타내는 파란색 마커
+            userMarker = new google.maps.Marker({
+                position: { lat: position.lat, lng: position.lng },
+                map: map,
+                title: "현재 위치",
+                icon: {
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
+                    scale: 5,
+                    rotation: position.heading, // 진행 방향에 따라 마커 회전
+                    fillColor: "blue",
+                    fillOpacity: 1,
+                    strokeWeight: 2
+                }
+            });
+
+            // 현재 위치 주변에 원 추가 (예: 정확도 범위)
+            if (userCircle) {
+                userCircle.setMap(null); // 기존 원 제거
+            }
+            userCircle = new google.maps.Circle({
+                center: { lat: position.lat, lng: position.lng },
+                radius: 50, // 정확도 범위 (예시)
+                map: map,
+                fillColor: '#ADD8E6',
+                fillOpacity: 0.3,
+                strokeColor: '#1E90FF',
+                strokeOpacity: 0.8,
+                strokeWeight: 2
+            });
+        }
+
         // 안내 정보를 표시하는 함수
         function showInfoBox(title, videoId, position) {
             const infoBox = document.getElementById("infoBox");
@@ -99,6 +154,11 @@
             `;
             infoBox.style.display = 'block';
         }
+
+        // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 실시간 트래킹 시작
+        document.getElementById("locationButton").addEventListener("click", () => {
+            trackUserLocation();
+        });
 
         window.onload = initMap; // 페이지 로드 시 맵 초기화
     </script>
