@@ -30,10 +30,21 @@
             box-shadow: none; /* 그림자 효과 제거 */
             display: none; /* 초기에는 숨김 */
         }
-        #youtubeEmbed iframe {
-            width: 100%; /* 안내창 폭에 맞추어 자동 조정 */
-            height: auto; /* 높이는 비율에 따라 자동 조정 */
+        #youtubeEmbed {
+            width: 100%;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 비율을 유지하기 위한 비율 */
+            height: 0;
+            overflow: hidden;
         }
+        #youtubeEmbed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* 전체 화면이 보이도록 설정 */
+        }
+
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
             #map {
@@ -121,12 +132,15 @@
                 const videoId = locations[0].videoId;
                 const videoLink = `https://www.youtube.com/embed/${videoId}`;
                 
-                // 안내창의 폭에 맞춰 유튜브 영상 크기 설정
-                document.querySelector("#youtubeEmbed iframe").src = videoLink;
-                document.getElementById("youtubeEmbed").style.display = 'block';
-
                 if (window.innerWidth <= 768) {
-                    window.scrollTo(0, document.body.scrollHeight); // 모바일 환경에서는 자동 스크롤
+                    // 모바일 환경에서 자동 스크롤 및 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                    window.scrollTo(0, document.body.scrollHeight); // 페이지 아래로 스크롤
+                } else {
+                    // PC 환경에서 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
                 }
             });
         }
@@ -218,12 +232,11 @@
             document.getElementById("youtubeEmbed").style.display = 'block';
         }
 
-        document.getElementById("locationButton").addEventListener("click", () => {
+        document.getElementById("locationButton").addEventListener("click", function() {
             isTracking = true;
+            firstClick = true;
             trackUserLocation();
         });
-
-        window.onload = initMap;
     </script>
 </body>
 </html>
