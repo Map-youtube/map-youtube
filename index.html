@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>여행지 및 식당 안내</title>
-    <link rel="stylesheet" href="styles.css"> <!-- 필요에 따라 추가 스타일링을 위해 CSS 파일을 링크합니다. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script> <!-- 구글 맵 API 키를 넣으세요 -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
     <style>
-        /* 간단한 스타일링 추가 */
         body {
             font-family: Arial, sans-serif;
         }
@@ -22,6 +21,7 @@
             border: 1px solid black;
             padding: 10px;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         #locationButton {
             margin: 10px;
@@ -35,6 +35,17 @@
             border: none;
             cursor: pointer;
         }
+        /* 팝업 닫기 위한 배경 */
+        .backdrop {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+            z-index: 99; 
+        }
     </style>
 </head>
 <body>
@@ -42,6 +53,7 @@
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
+    <div class="backdrop" id="backdrop" onclick="closePopup()"></div>
     <div class="popup" id="popup"></div>
 
     <script>
@@ -145,22 +157,33 @@
         // 팝업 표시 함수
         function showPopup(title, videoId, position) {
             const popup = document.getElementById("popup");
+            const backdrop = document.getElementById("backdrop");
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
+            
             popup.innerHTML = `
                 <h3>${title}</h3>
-                <iframe width="280" height="157" 
-                        src="${videoLink}" 
-                        frameborder="0" 
-                        allowfullscreen></iframe>
+                <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
                 <button class="popup-close-btn" onclick="closePopup()">닫기</button>
             `;
+            
+            // 팝업 위치 설정
+            const projection = map.getProjection();
+            const point = projection.fromLatLngToPoint(position);
+            
+            popup.style.left = `${point.x}px`;
+            popup.style.top = `${point.y - 50}px`; // 말풍선 효과를 위해 조정
+            
             popup.style.display = 'block';
+            backdrop.style.display = 'block'; // 배경 표시
         }
 
         // 팝업 닫기 함수
         function closePopup() {
             const popup = document.getElementById("popup");
+            const backdrop = document.getElementById("backdrop");
+            
             popup.style.display = 'none';
+            backdrop.style.display = 'none'; // 배경 숨기기
         }
 
         // 에러 처리 함수
@@ -183,10 +206,10 @@
                 };
                 map.setCenter(pos); // 현재 위치로 이동
                 map.setZoom(15); // 지도를 확대
-            });
-        });
+           });
+       });
 
-        window.onload = initMap; // 페이지 로드 시 맵 초기화
-    </script>
+       window.onload = initMap; // 페이지 로드 시 맵 초기화
+   </script>
 </body>
 </html>
