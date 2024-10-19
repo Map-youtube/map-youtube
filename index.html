@@ -1,61 +1,85 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Location Info</title>
-    <style>
-        #map {
-            height: 100vh;
-            width: 100%;
-        }
-    </style>
+  <title>맞춤형 지도 서비스</title>
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places&callback=initMap"></script>
 </head>
 <body>
-    <h1>내가 원하는 위치 정보</h1>
-    <div id="map"></div>
+  <div id="map"></div>
+  <input type="text" id="search-input" placeholder="장소 검색">
+  <button onclick="searchLocation()">검색</button>
 
-    <script>
-        function initMap() {
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 37.7749, lng: -122.4194 }, // 샌프란시스코 좌표 예시
-                zoom: 12,
+  <script>
+    let map;
+    let markers = [];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 37.5665, lng: 126.9780 }, // 서울 기본 위치
+        zoom: 13
+      });
+
+      // 현재 위치 가져오기 (Geolocation API 사용)
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            map.setCenter(pos);
+            new google.maps.Marker({
+              position: pos,
+              map: map,
+              title: '현재 위치'
             });
+          },
+          (error) => {
+            console.error(error);
+          }
+        );
+      } else {
+        // HTML5 Geolocation이 지원되지 않는 경우
+        alert('Geolocation is not supported by this browser.');
+      }
 
-            const locations = [
-                {
-                    position: { lat: 37.7749, lng: -122.4194 },
-                    title: "샌프란시스코",
-                    description: "샌프란시스코의 주요 명소입니다.",
-                    youtubeLink: "https://youtu.be/example",
-                    hours: "9:00 AM - 6:00 PM",
-                },
-                // 추가 장소 목록
-            ];
+      // Places Autocomplete 서비스 초기화
+      const autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('search-input'),
+        {}
+      );
 
-            locations.forEach((location) => {
-                const marker = new google.maps.Marker({
-                    position: location.position,
-                    map: map,
-                    title: location.title,
-                });
+      // 마커 클릭 이벤트 리스너
+      map.addListener('click', (event) => {
+        addMarker(event.latLng);
+      });
+    }
 
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <h3>${location.title}</h3>
-                        <p>${location.description}</p>
-                        <p><a href="${location.youtubeLink}" target="_blank">YouTube Link</a></p>
-                        <p><strong>영업시간:</strong> ${location.hours}</p>
-                    `,
-                });
+    function searchLocation() {
+      // 검색 결과를 이용하여 지도 이동 및 마커 추가
+      // ... (Places Autocomplete 서비스를 활용하여 구현)
+    }
 
-                marker.addListener('click', () => {
-                    infoWindow.open(map, marker);
-                });
-            });
-        }
-    </script>
+    function addMarker(latLng) {
+      const marker = new google.maps.Marker({
+        position: latLng,
+        map: map
+      });
+      markers.push(marker);
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhHpZEkvHaFOFHEfJli11F-7XR-9mPpsY&callback=initMap"></script>
+      // 마커 클릭 시 정보 입력 창 띄우기 (예시)
+      const infoWindow = new google.maps.InfoWindow({
+        content: '<input type="text" id="info-input" placeholder="정보 입력">'
+      });
+      infoWindow.open(map, marker);
+      // 입력된 정보를 데이터베이스에 저장하는 로직 추가
+    }
+  </script>
 </body>
 </html>
