@@ -81,7 +81,7 @@
             });
 
             const locations = [
-                { title: "맛집 000", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             locations.forEach(location => {
@@ -95,18 +95,6 @@
                     showInfoBox(location.title, location.videoId, marker.getPosition());
                     map.panTo(marker.getPosition());
                 });
-            });
-
-            // 지도 줌 레벨 변경 시 핀 표시 여부 조정 (PC 환경)
-            google.maps.event.addListener(map, "zoom_changed", () => {
-                const zoomLevel = map.getZoom();
-                if (userMarker) {
-                    if (zoomLevel >= 16) {
-                        userMarker.setMap(map); // 줌 레벨 16 이상일 때 핀 표시
-                    } else {
-                        userMarker.setMap(null); // 줌 레벨 16 미만일 때 핀 숨김
-                    }
-                }
             });
         }
 
@@ -122,7 +110,7 @@
 
                     if (isTracking && firstClick) {
                         map.panTo(pos);
-                        map.setZoom(16); // 첫 클릭 시 줌 레벨을 16으로 설정
+                        map.setZoom(16);
                         firstClick = false;
                         isTracking = false;
                     } else if (isTracking && !firstClick) {
@@ -145,6 +133,7 @@
             if (!userMarker) {
                 userMarker = new google.maps.Marker({
                     position: { lat: position.lat, lng: position.lng },
+                    map: map,
                     title: "현재 위치",
                     icon: {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
@@ -159,18 +148,13 @@
                 userCircle = new google.maps.Circle({
                     center: { lat: position.lat, lng: position.lng },
                     radius: 50,
+                    map: map,
                     fillColor: '#ADD8E6',
                     fillOpacity: 0.3,
                     strokeColor: '#1E90FF',
                     strokeOpacity: 0.8,
                     strokeWeight: 2
                 });
-
-                // 초기 상태에서 줌 레벨이 16 이상일 때만 사용자 핀 표시
-                if (map.getZoom() >= 16) {
-                    userMarker.setMap(map);
-                    userCircle.setMap(map);
-                }
             } else {
                 userMarker.setPosition({ lat: position.lat, lng: position.lng });
                 userMarker.setIcon({
