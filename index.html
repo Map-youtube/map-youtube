@@ -9,39 +9,53 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         #map {
-            height: 600px; /* 기본 높이 */
+            height: 600px;
             width: 100%;
         }
-        #locationButton {
-            margin: 10px;
-            padding: 10px;
-            display: block; /* 기본적으로 모바일에서는 표시 */
+        #map-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .info-box {
-            position: absolute;
-            bottom: 10px; /* 기본 위치 */
-            left: 10px;
-            width: calc(100% - 20px); /* 기본 너비 */
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        /* PC 환경에서 지도와 안내창 설정 */
+        @media (min-width: 769px) {
+            #map {
+                width: 60%; /* 지도 폭 60% */
+                height: 600px; /* 고정된 지도 높이 */
+            }
+            .info-panel {
+                width: 40%; /* 안내창 폭 40% */
+                height: 600px; /* 지도와 동일한 높이 */
+                padding: 20px;
+                background-color: #f9f9f9;
+                border-left: 1px solid #ccc;
+                box-sizing: border-box;
+            }
+            #locationButton {
+                display: none; /* PC에서는 "현재 위치 보기" 버튼 숨김 */
+            }
         }
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
             #map {
                 height: 300px; /* 모바일에서 지도 높이 조정 */
+                width: 100%; /* 전체 화면 */
             }
-            .info-box {
-                bottom: 5px; /* 모바일에서 안내창 위치 조정 */
+            .info-panel {
+                display: none; /* 모바일에서는 안내창 숨김 */
             }
-        }
-        /* PC 환경에서 "현재 위치 보기" 버튼 숨기기 */
-        @media (min-width: 769px) {
             #locationButton {
-                display: none;
+                display: block; /* 모바일에서는 "현재 위치 보기" 버튼 표시 */
+                margin: 10px;
+                padding: 10px;
             }
         }
     </style>
@@ -50,16 +64,19 @@
 
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
-    <div id="map"></div>
-    <div class="info-box" id="infoBox">안내 정보가 여기에 표시됩니다.</div>
+
+    <div id="map-container">
+        <div id="map"></div>
+        <div class="info-panel" id="infoBox">
+            안내 정보가 여기에 표시됩니다.
+        </div>
+    </div>
 
     <script>
         let map;
         let userMarker;
         let userCircle;
-        let watchId; // 위치 추적 ID
-        let isTracking = false; // 현재 위치 추적 중인지 여부
-        let firstClick = true; // 버튼 첫 클릭 여부 확인
+        const visibilityZoomLevel = 16; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
 
         function initMap() {
             // 맵 초기화
@@ -73,7 +90,7 @@
                 { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
-            // 위치에 대한 마커 생성
+            // 위치에 대한 마커 생성 및 확대 수준에 따른 마커 표시
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -83,109 +100,21 @@
 
                 // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
-                    showInfoBox(location.title, location.videoId, marker.getPosition());
-                    map.panTo(marker.getPosition()); // 핀 클릭 시 지도 중심 애니메이션 이동
+                    showInfoBox(location.title, location.videoId);
+                    map.setCenter(marker.getPosition()); // 핀 클릭 시 지도 중심 이동
                 });
             });
         }
 
-        // 현재 위치 추적 함수
-        function trackUserLocation() {
-            if (navigator.geolocation) {
-                // 위치가 변할 때마다 업데이트
-                watchId = navigator.geolocation.watchPosition(position => {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        heading: position.coords.heading || 0 // 진행 방향
-                    };
-                    updateUserMarker(pos);
-
-                    // "현재 위치 보기" 버튼을 처음 누를 때
-                    if (isTracking && firstClick) {
-                        map.panTo(pos); // 부드러운 애니메이션으로 현재 위치로 이동
-                        map.setZoom(16); // 첫 클릭 시 현재보다 한 단계 더 확대
-                        firstClick = false; // 첫 클릭 이후에는 확대하지 않도록 설정
-                        isTracking = false;
-                    } 
-                    // 두 번째 이상 클릭 시 확대하지 않고 자연스럽게 이동만
-                    else if (isTracking && !firstClick) {
-                        map.panTo(pos); // 확대 없이 자연스럽게 이동
-                        isTracking = false;
-                    }
-                }, () => {
-                    alert("위치 정보를 가져올 수 없습니다.");
-                }, {
-                    enableHighAccuracy: true, // 높은 정확도 사용
-                    maximumAge: 0,
-                    timeout: 5000
-                });
-            } else {
-                alert("브라우저가 위치 서비스를 지원하지 않습니다.");
-            }
-        }
-
-        // 사용자 현재 위치에 마커 및 진행 방향 표시 업데이트
-        function updateUserMarker(position) {
-            if (!userMarker) {
-                // 최초에는 마커와 원을 생성
-                userMarker = new google.maps.Marker({
-                    position: { lat: position.lat, lng: position.lng },
-                    map: map,
-                    title: "현재 위치",
-                    icon: {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
-                        scale: 5,
-                        rotation: position.heading, // 진행 방향에 따라 마커 회전
-                        fillColor: "blue",
-                        fillOpacity: 1,
-                        strokeWeight: 2
-                    }
-                });
-
-                // 현재 위치 주변에 원 추가 (예: 정확도 범위)
-                userCircle = new google.maps.Circle({
-                    center: { lat: position.lat, lng: position.lng },
-                    radius: 50, // 정확도 범위
-                    map: map,
-                    fillColor: '#ADD8E6',
-                    fillOpacity: 0.3,
-                    strokeColor: '#1E90FF',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2
-                });
-            } else {
-                // 마커와 원의 위치를 업데이트
-                userMarker.setPosition({ lat: position.lat, lng: position.lng });
-                userMarker.setIcon({
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                    scale: 5,
-                    rotation: position.heading,
-                    fillColor: "blue",
-                    fillOpacity: 1,
-                    strokeWeight: 2
-                });
-
-                userCircle.setCenter({ lat: position.lat, lng: position.lng });
-            }
-        }
-
         // 안내 정보를 표시하는 함수
-        function showInfoBox(title, videoId, position) {
+        function showInfoBox(title, videoId) {
             const infoBox = document.getElementById("infoBox");
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
             infoBox.innerHTML = `
                 <h3>${title}</h3>
                 <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
             `;
-            infoBox.style.display = 'block';
         }
-
-        // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 트래킹 활성화
-        document.getElementById("locationButton").addEventListener("click", () => {
-            isTracking = true; // 버튼을 누를 때마다 트래킹 재활성화
-            trackUserLocation(); // 현재 위치 추적
-        });
 
         window.onload = initMap; // 페이지 로드 시 맵 초기화
     </script>
