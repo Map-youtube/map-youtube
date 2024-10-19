@@ -28,6 +28,7 @@
             padding: 10px;
             border-radius: 5px;
             box-shadow: none; /* 그림자 효과 제거 */
+            display: none; /* 초기에는 숨김 */
         }
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
@@ -65,10 +66,10 @@
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="info-box" id="infoBox">
-        <h3>가게이름 : 맛업다식당</h3>
-        <p>가게주소 : 서울군</p>
-        <p>영업시간 : 1시간</p>
-        <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">https://www.youtube.com/watch?v=gCWIa4TwcPc</a></p>
+        <h3 id="storeName"></h3>
+        <p>가게주소 : <span id="storeAddress"></span></p>
+        <p>영업시간 : <span id="storeHours"></span></p>
+        <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">링크 보기</a></p>
         <div id="youtubeEmbed" style="display:none;">
             <iframe width="280" height="157" src="" frameborder="0" allowfullscreen></iframe>
         </div>
@@ -89,7 +90,7 @@
             });
 
             const locations = [
-                { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
+                { title: "맛잇다식당", address: "서울군", hours: "1시간", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
             ];
 
             locations.forEach(location => {
@@ -100,7 +101,7 @@
                 });
 
                 marker.addListener("click", () => {
-                    showInfoBox(location.title, location.videoId, marker.getPosition());
+                    showInfoBox(location);
                     map.panTo(marker.getPosition());
                 });
                 
@@ -201,15 +202,19 @@
             }
         }
 
-        function showInfoBox(title, videoId, position) {
-            const infoBox = document.getElementById("infoBox");
-            const videoLink = `https://www.youtube.com/embed/${videoId}`;
+        function showInfoBox(location) {
+            document.getElementById("storeName").textContent = location.title;
+            document.getElementById("storeAddress").textContent = location.address;
+            document.getElementById("storeHours").textContent = location.hours;
+
+            document.getElementById("infoBox").style.display = 'block';
             
-            infoBox.innerHTML = `
-                <h3>${title}</h3>
-                <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
-            `;
-            infoBox.style.display = 'block';
+            // YouTube 링크를 클릭하면 영상 보이기
+            const videoLink = `https://www.youtube.com/embed/${location.videoId}`;
+            document.querySelector("#youtubeEmbed iframe").src = videoLink;
+
+            // 영상 표시
+            document.getElementById("youtubeEmbed").style.display = 'block';
         }
 
         document.getElementById("locationButton").addEventListener("click", () => {
