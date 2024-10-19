@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -82,7 +81,7 @@
             });
 
             const locations = [
-                { title: "맛집 ㅋㅋㅋ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             locations.forEach(location => {
@@ -196,14 +195,3 @@
     </script>
 </body>
 </html>
-```
-
-Citations:
-[1] https://www.geeksforgeeks.org/how-to-apply-no-shadow-in-an-element-using-css/
-[2] https://stackoverflow.com/questions/47132603/how-to-remove-the-border-box-shadow-provides
-[3] https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow.
-[4] https://answers.microsoft.com/en-us/windows/forum/all/removing-desktop-icon-shadow/b0a9e7c1-6199-4c2f-a23e-d373dc1869d9
-[5] https://github.com/react-native-maps/react-native-maps/issues/175
-[6] https://developers.google.com/maps/documentation/javascript/examples/advanced-markers-zoom
-[7] https://stackoverflow.com/questions/20044308/google-maps-api-3-show-hide-markers-depending-on-zoom-level
-[8] https://support.google.com/maps/answer/6242110?co=GENIE.Platform%3DAndroid&hl=ko
