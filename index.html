@@ -84,8 +84,6 @@
 
                 // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
-                    map.setCenter(marker.getPosition()); // 핀 클릭 시 중심 이동
-                    map.setZoom(15); // 핀 클릭 시 확대
                     showPopup(location.title, location.videoId, marker.getPosition());
                 });
 
@@ -167,14 +165,12 @@
                 <button class="popup-close-btn" onclick="closePopup()">닫기</button>
             `;
             
-            // 팝업 위치 설정 (핀 위쪽)
+            // 팝업 위치 설정 (핀 중심 위쪽)
             const projection = map.getProjection();
             const point = projection.fromLatLngToPoint(position);
-            const mapDiv = document.getElementById("map");
-            const overlayProjection = projection.fromLatLngToPoint(map.getCenter());
             
             popup.style.left = `${point.x}px`;
-            popup.style.top = `${point.y - 50}px`; // 핀 위쪽에 위치하도록 조정
+            popup.style.top = `${point.y - 80}px`; // 핀의 중심 위쪽으로 조정
             
             popup.style.display = 'block';
             backdrop.style.display = 'block'; // 배경 표시
