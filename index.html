@@ -1,107 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>맞춤형 지도 서비스</title>
-  <style>
-    #map {
-      height: 400px;
-      width: 100%;
-    }
-  </style>
-  <script async defer
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGIcallback=initMap&libraries=places">
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행지 및 식당 안내</title>
+    <link rel="stylesheet" href="styles.css"> <!-- CSS 파일 링크 (추가 스타일링을 위해) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhHpZEkvHaFOFHEfJli11F-7XR-9mPpsY&callback=initMap" async defer></script>
+    <style>
+        /* 간단한 스타일링 추가 */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .popup {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid black;
+            padding: 10px;
+            z-index: 100;
+        }
+    </style>
 </head>
 <body>
-  <div id="map"></div>
-  <input type="text" id="search-input" placeholder="장소 검색">
-  <button onclick="searchLocation()">검색</button>
 
-  <script>
-    let map;
-    let markers = [];
+    <h1>여행지 및 식당 안내</h1>
+    <div id="map"></div>
+    <div class="popup" id="popup"></div>
 
-    function initMap() {
-      map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 37.5665, lng: 126.9780 }, // 서울 기본 위치
-        zoom: 13
-      });
-
-      // 현재 위치 가져오기 (Geolocation API 사용)
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const pos = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            map.setCenter(pos);
-            new google.maps.Marker({
-              position: pos,
-              map: map,
-              title: '현재 위치'
+    <script>
+        let map;
+        function initMap() {
+            // 맵 초기화
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 37.564213, lng: 127.001698 }, // 서울 중심
+                zoom: 10,
             });
-          },
-          (error) => {
-            console.error('Geolocation error:', error);
-          }
-        );
-      } else {
-        console.error('Geolocation is not supported by this browser.');
-      }
 
-      // Places Autocomplete 서비스 초기화
-      const autocomplete = new google.maps.places.Autocomplete(
-        document.getElementById('search-input'),
-        {}
-      );
+            // 마커를 추가할 위치 (여행지 또는 식당)
+            const locations = [
+                { title: "맛집 A", lat: 37.570000, lng: 127.003000, videoId: "a1BcD2EfGHQ" },
+                { title: "여행지 B", lat: 37.580000, lng: 127.010000, videoId: "b2CdEfGhij3" }
+            ];
 
-      // 마커 클릭 이벤트 리스너
-      map.addListener('click', (event) => {
-        addMarker(event.latLng);
-      });
-    }
+            locations.forEach(location => {
+                const marker = new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: map,
+                    title: location.title,
+                });
 
-    function searchLocation() {
-      const input = document.getElementById('search-input').value;
-      const request = {
-        query: input,
-        fields: ['name', 'geometry'],
-        location: map.getCenter()
-      };
-
-      const service = new google.maps.places.PlacesService(map);
-      service.findPlaceFromQuery(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-          const place = results[0];
-          const geometry = place.geometry.location;
-          map.setCenter(geometry);
-          new google.maps.Marker({
-            map: map,
-            position: geometry
-          });
-        } else {
-          console.error('PlacesService error:', status);
+                // 클릭 이벤트 리스너 추가
+                marker.addListener("click", () => {
+                    showPopup(location.title, location.videoId, marker.getPosition());
+                });
+            });
         }
-      });
-    }
 
-    function addMarker(latLng) {
-      const marker = new google.maps.Marker({
-        position: latLng,
-        map: map
-      });
-      markers.push(marker);
-
-      // 마커 클릭 시 정보 입력 창 띄우기 (예시)
-      const infoWindow = new google.maps.InfoWindow({
-        content: '<input type="text" id="info-input" placeholder="정보 입력">'
-      });
-      infoWindow.open(map, marker);
-
-      // 입력된 정보를 데이터베이스에 저장하는 로직 추가 (예: Firebase Realtime Database)
-      // ... (Firebase SDK를 이용하여 데이터베이스에 저장하는 코드 작성)
-    }
-  </script>
+        function showPopup(title, videoId, position) {
+            const popup = document.getElementById("popup");
+            const videoLink = `https://www.youtube.com/embed/${videoId}`;
+            popup.innerHTML = `
+                <h3>${title}</h3>
+                <iframe width="280" height="157" 
+                        src="${videoLink}" 
+                        frameborder="0" 
+                        allowfullscreen></iframe>
+            `;
+            popup.style.display = 'block';
+            popup.style.left = position.lng() + 'px';  // Popup 위치 설정
+            popup.style.top = position.lat() + 'px';
+        }
+    </script>
 </body>
 </html>
