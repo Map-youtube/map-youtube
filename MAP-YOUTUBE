@@ -50,7 +50,8 @@
         let map;
         let userMarker;
         let userCircle;
-        let isTracking = false; // 현재 위치 추적 중인지 여부를 나타내는 플래그
+        let watchId; // 위치 추적 ID
+        let isTracking = false; // 현재 위치 추적 중인지 여부
 
         function initMap() {
             // 맵 초기화
@@ -80,21 +81,23 @@
             });
         }
 
-        // 현재 위치 추적 함수 (실시간 트래킹)
+        // 현재 위치 추적 함수
         function trackUserLocation() {
             if (navigator.geolocation) {
                 // 위치가 변할 때마다 업데이트
-                navigator.geolocation.watchPosition(position => {
+                watchId = navigator.geolocation.watchPosition(position => {
                     const pos = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
-                        heading: position.coords.heading || 0 // 진행 방향 (heading)
+                        heading: position.coords.heading || 0 // 진행 방향
                     };
                     setUserMarker(pos);
-                    if (!isTracking) {
-                        map.setCenter(pos); // "현재 위치 보기" 버튼 클릭 시에만 위치를 중심으로
+
+                    // "현재 위치 보기" 버튼을 눌렀을 때만 지도 중심 이동
+                    if (isTracking) {
+                        map.setCenter(pos);
                         map.setZoom(15); // 지도를 확대
-                        isTracking = true; // 이후로는 수동으로 지도 조작 가능
+                        isTracking = false; // 한 번 이동 후 트래킹 중지
                     }
                 }, () => {
                     alert("위치 정보를 가져올 수 없습니다.");
@@ -111,9 +114,8 @@
         // 사용자 현재 위치에 마커 및 진행 방향 표시
         function setUserMarker(position) {
             if (userMarker) {
-                userMarker.setMap(null); // 기존 핀 제거
+                userMarker.setMap(null); // 기존 마커 제거
             }
-            // 현재 위치를 나타내는 파란색 마커
             userMarker = new google.maps.Marker({
                 position: { lat: position.lat, lng: position.lng },
                 map: map,
@@ -134,7 +136,7 @@
             }
             userCircle = new google.maps.Circle({
                 center: { lat: position.lat, lng: position.lng },
-                radius: 50, // 정확도 범위 (예시)
+                radius: 50, // 정확도 범위
                 map: map,
                 fillColor: '#ADD8E6',
                 fillOpacity: 0.3,
@@ -155,9 +157,10 @@
             infoBox.style.display = 'block';
         }
 
-        // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 실시간 트래킹 시작
+        // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 트래킹 활성화
         document.getElementById("locationButton").addEventListener("click", () => {
-            trackUserLocation();
+            isTracking = true; // 버튼을 누를 때마다 트래킹 재활성화
+            trackUserLocation(); // 현재 위치 추적
         });
 
         window.onload = initMap; // 페이지 로드 시 맵 초기화
