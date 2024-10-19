@@ -39,7 +39,7 @@
     <script>
         let map;
         let marker;
-        const visibilityZoomLevel = 12; // 핀이 보일 최소 확대 수준
+        const visibilityZoomLevel = 5; // 핀이 보일 최소 확대 수준
 
         function initMap() {
             // 맵 초기화
