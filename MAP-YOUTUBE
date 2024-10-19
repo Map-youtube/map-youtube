@@ -52,8 +52,7 @@
             // 마커를 추가할 위치 (여행지 또는 식당)
             const locations = [
                 { title: "맛집 A", lat: 37.570000, lng: 127.003000, videoId: "a1BcD2EfGHQ" },
-                { title: "맛집 D", lat: 37.500000, lng: 127.003000, videoId: "a1BcD2EfGHQ" },
-                { title: "여행지 B", lat: 37.580000, lng: 127.010000, videoId: "b2CdEfGhij3" }
+
             ];
 
             // 위치에 대한 마커 생성 및 확대 수준에 따른 마커 표시
