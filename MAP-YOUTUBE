@@ -60,6 +60,7 @@
         let map;
         let userMarker;
         let userCircle;
+        const visibilityZoomLevel = 16; // 핀이 보일 최소 확대 수준 (더 높은 수준으로 조정)
 
         function initMap() {
             // 맵 초기화
@@ -83,8 +84,9 @@
 
                 // 클릭 이벤트 리스너 추가
                 marker.addListener("click", () => {
+                    map.setCenter(marker.getPosition()); // 핀 클릭 시 중심 이동
+                    map.setZoom(15); // 핀 클릭 시 확대
                     showPopup(location.title, location.videoId, marker.getPosition());
-                    map.setCenter(marker.getPosition()); // 마커 클릭 시 지도 중심 이동
                 });
 
                 // 지도 확대/축소 이벤트 감지 및 마커 표시/숨기기
@@ -97,6 +99,7 @@
         // 현재 위치 추적 함수 (실시간 트래킹)
         function getLocationAndTrack() {
             if (navigator.geolocation) {
+                // 위치가 변할 때마다 업데이트
                 navigator.geolocation.watchPosition(position => {
                     const pos = {
                         lat: position.coords.latitude,
@@ -107,7 +110,7 @@
                 }, () => {
                     handleLocationError(true);
                 }, {
-                    enableHighAccuracy: true,
+                    enableHighAccuracy: true, // 높은 정확도 사용
                     maximumAge: 0,
                     timeout: 5000
                 });
@@ -121,28 +124,28 @@
             if (userMarker) {
                 userMarker.setMap(null); // 기존 핀 제거
             }
-            
+            // 현재 위치를 나타내는 파란색 마커
             userMarker = new google.maps.Marker({
                 position: { lat: position.lat, lng: position.lng },
                 map: map,
                 title: "현재 위치",
                 icon: {
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, // 진행 방향 표시 화살표
                     scale: 5,
-                    rotation: position.heading,
+                    rotation: position.heading, // 진행 방향에 따라 마커 회전
                     fillColor: "blue",
                     fillOpacity: 1,
                     strokeWeight: 2
                 }
             });
 
+            // 현재 위치 주변에 원 추가 (예: 정확도 범위)
             if (userCircle) {
                 userCircle.setMap(null); // 기존 원 제거
             }
-            
             userCircle = new google.maps.Circle({
                 center: { lat: position.lat, lng: position.lng },
-                radius: 50,
+                radius: 50, // 정확도 범위 (예시)
                 map: map,
                 fillColor: '#ADD8E6',
                 fillOpacity: 0.3,
@@ -164,56 +167,48 @@
                 <button class="popup-close-btn" onclick="closePopup()">닫기</button>
             `;
             
-             // 팝업 위치 설정
-             const projection = map.getProjection();
-             const point = projection.fromLatLngToPoint(position);
-             
-             popup.style.left = `${point.x}px`;
-             
-             // 팝업을 지도 중심에 표시하고 핀을 그 아래에 보이도록 설정
-             popup.style.top = `${point.y - popup.offsetHeight - 10}px`; // 팝업 아래로 핀 위치 조정
+            // 팝업 위치 설정 (핀 위쪽)
+            const projection = map.getProjection();
+            const point = projection.fromLatLngToPoint(position);
+            const mapDiv = document.getElementById("map");
+            const overlayProjection = projection.fromLatLngToPoint(map.getCenter());
+            
+            popup.style.left = `${point.x}px`;
+            popup.style.top = `${point.y - 50}px`; // 핀 위쪽에 위치하도록 조정
+            
+            popup.style.display = 'block';
+            backdrop.style.display = 'block'; // 배경 표시
+        }
 
-             popup.style.display = 'block';
-             backdrop.style.display = 'block'; // 배경 표시
+        // 팝업 닫기 함수
+        function closePopup() {
+            const popup = document.getElementById("popup");
+            const backdrop = document.getElementById("backdrop");
+            
+            popup.style.display = 'none';
+            backdrop.style.display = 'none'; // 배경 숨기기
+        }
 
-             // 핀 위치 조정
-             const marker = new google.maps.Marker({
-                 position,
-                 map,
-                 title,
-             });
-             marker.setMap(map); // 핀을 다시 지도에 표시
-         }
+        // 에러 처리 함수
+        function handleLocationError(browserHasGeolocation) {
+            const infoWindow = new google.maps.InfoWindow();
+            infoWindow.setPosition(map.getCenter());
+            infoWindow.setContent(browserHasGeolocation ? 
+                                   "Error: The Geolocation service failed." : 
+                                   "Error: Your browser doesn't support geolocation.");
+            infoWindow.open(map);
+        }
 
-         // 팝업 닫기 함수
-         function closePopup() {
-           const popup = document.getElementById("popup");
-           const backdrop = document.getElementById("backdrop");
-           
-           popup.style.display = 'none';
-           backdrop.style.display = 'none'; // 배경 숨기기
-       }
-
-       // 에러 처리 함수
-       function handleLocationError(browserHasGeolocation) {
-           const infoWindow = new google.maps.InfoWindow();
-           infoWindow.setPosition(map.getCenter());
-           infoWindow.setContent(browserHasGeolocation ? 
-                                  "Error: The Geolocation service failed." : 
-                                  "Error: Your browser doesn't support geolocation.");
-           infoWindow.open(map);
-       }
-
-       // 버튼 클릭 시 현재 위치로 이동 (한 번만 실행됨, 실시간 트래킹은 계속)
-       document.getElementById("locationButton").addEventListener("click", () => {
-           getLocationAndTrack();
-           navigator.geolocation.getCurrentPosition(position => {
-               const pos = {
-                   lat: position.coords.latitude,
-                   lng: position.coords.longitude
-               };
-               map.setCenter(pos); // 현재 위치로 이동
-               map.setZoom(15); // 지도를 확대
+        // 버튼 클릭 시 현재 위치로 이동 (한 번만 실행됨, 실시간 트래킹은 계속)
+        document.getElementById("locationButton").addEventListener("click", () => {
+            getLocationAndTrack();
+            navigator.geolocation.getCurrentPosition(position => {
+                const pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                map.setCenter(pos); // 현재 위치로 이동
+                map.setZoom(15); // 지도를 확대
            });
        });
 
