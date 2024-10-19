@@ -81,19 +81,25 @@
             });
 
             const locations = [
-                { title: "맛집 ㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅁㅁㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
-                    map: map,
+                    map: null, // 초기에는 맵에 표시하지 않음
                     title: location.title,
                 });
 
                 marker.addListener("click", () => {
                     showInfoBox(location.title, location.videoId, marker.getPosition());
                     map.panTo(marker.getPosition());
+                });
+                
+                // 줌 레벨에 따라 마커 표시
+                map.addListener('zoom_changed', () => {
+                    const zoom = map.getZoom();
+                    marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
                 });
             });
         }
