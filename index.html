@@ -12,28 +12,38 @@
             margin: 0;
             padding: 0;
         }
+
+        /* 제목 스타일 */
+        h1 {
+            text-align: left;
+            margin: 20px;
+            padding-left: 20px;
+        }
+
+        /* 지도와 안내창을 담는 컨테이너 */
         #map-container {
+            display: flex;
             width: 100%;
+            height: 600px; /* PC 환경에서의 높이 유지 */
         }
+
+        /* 지도 설정 */
         #map {
-            height: 600px; /* 기본 높이 */
-            width: 100%; /* 기본적으로 모바일에서는 100% */
+            width: 60%; /* 지도 폭 60% */
+            height: 100%; /* PC 환경에서 높이 100% */
         }
-        #locationButton {
-            margin: 10px;
-            padding: 10px;
-            display: block; /* 기본적으로 모바일에서는 표시 */
+
+        /* 안내창 설정 */
+        .info-panel {
+            width: 40%; /* 안내창 폭 40% */
+            height: 100%; /* 안내창 높이 지도와 동일하게 설정 */
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-left: 1px solid #ccc;
+            box-sizing: border-box;
+            overflow-y: auto; /* 안내창에서 내용이 많아지면 스크롤 */
         }
-        .info-box {
-            position: absolute;
-            bottom: 10px; /* 기본 위치 */
-            left: 10px;
-            width: calc(100% - 20px); /* 기본 너비 */
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
+
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
             #map {
@@ -42,44 +52,12 @@
             .info-box {
                 bottom: 5px; /* 모바일에서 안내창 위치 조정 */
             }
-            #locationButton {
-                display: block; /* 모바일에서만 버튼 보이게 */
-            }
         }
-        /* PC 환경에서 레이아웃 수정 */
+
+        /* PC 환경에서 "현재 위치 보기" 버튼 숨기기 */
         @media (min-width: 769px) {
-            body {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            #map-container {
-                display: flex;
-                width: 100%;
-                max-width: 1200px; /* 전체 화면 폭 조정 */
-                margin: 0 auto;
-            }
-            #map {
-                width: 60%; /* 지도는 화면의 60% 차지 */
-                height: 600px; /* 지도 높이는 고정 */
-            }
-            .info-panel {
-                width: 40%; /* 안내창은 40% */
-                padding: 20px;
-                background-color: #f9f9f9;
-                border-left: 1px solid #ccc;
-                box-sizing: border-box;
-                height: 600px; /* 지도와 동일한 높이 */
-            }
             #locationButton {
-                display: none; /* PC 환경에서는 버튼 숨김 */
-            }
-            h1 {
-                position: absolute;
-                top: 10px;
-                left: 10px; /* 제목을 왼쪽 상단에 고정 */
-                margin: 0;
-                padding: 0;
+                display: none;
             }
         }
     </style>
@@ -88,12 +66,11 @@
 
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
+
+    <!-- 지도와 안내창을 담는 컨테이너 -->
     <div id="map-container">
         <div id="map"></div>
-        <div class="info-panel" id="infoBox">
-            <h3>안내 정보</h3>
-            <p>여기에 핀의 상세 정보를 표시합니다.</p>
-        </div>
+        <div class="info-panel" id="infoBox">안내 정보가 여기에 표시됩니다.</div>
     </div>
 
     <script>
@@ -113,7 +90,7 @@
 
             // 마커를 추가할 위치 (여행지 또는 식당)
             const locations = [
-                { title: "맛집 ㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             // 위치에 대한 마커 생성
@@ -219,9 +196,8 @@
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
             infoBox.innerHTML = `
                 <h3>${title}</h3>
-                <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
+                <iframe width="100%" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
             `;
-            infoBox.style.display = 'block';
         }
 
         // "현재 위치 보기" 버튼 클릭 시 현재 위치로 이동 및 트래킹 활성화
