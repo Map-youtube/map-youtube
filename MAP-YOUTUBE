@@ -10,39 +10,11 @@
         body {
             font-family: Arial, sans-serif;
         }
-        #map {
-            height: 600px; /* 기본 높이 */
-            width: 100%; /* 모바일 환경에서 100%로 채움 */
-        }
-        #locationButton {
-            margin: 10px;
-            padding: 10px;
-            display: block; /* 기본적으로 모바일에서는 표시 */
-        }
-        .info-box {
-            position: absolute;
-            bottom: 10px; /* 기본 위치 */
-            left: 10px;
-            width: calc(100% - 20px); /* 모바일 환경에서 기본 너비 */
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: none; /* 그림자 효과 제거 */
-        }
-        /* 모바일 환경 스타일 */
-        @media (max-width: 768px) {
-            #map {
-                height: 300px; /* 모바일에서 지도 높이 조정 */
-            }
-            .info-box {
-                bottom: 5px; /* 모바일에서 안내창 위치 조정 */
-            }
-        }
-        /* PC 환경에서 화면 비율 조정 */
+        /* PC 환경 스타일 */
         @media (min-width: 769px) {
             #map {
-                width: 60%; /* PC 환경에서 지도는 60% */
                 height: 600px; /* 고정 높이 */
+                width: 60%; /* PC 환경에서 지도는 60% */
                 float: left; /* 지도 왼쪽 배치 */
             }
             .info-box {
@@ -52,9 +24,28 @@
                 height: 600px; /* 지도와 같은 높이로 맞춤 */
                 overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
                 box-sizing: border-box; /* 패딩과 폭을 제대로 계산 */
+                box-shadow: none; /* 그림자 효과 제거 */
             }
             #locationButton {
                 display: none; /* PC에서는 위치 버튼 숨김 */
+            }
+        }
+
+        /* 모바일 환경 스타일 */
+        @media (max-width: 768px) {
+            #map {
+                height: 300px; /* 모바일에서 지도 높이 조정 */
+                width: 100%; /* 모바일 환경에서 100%로 채움 */
+            }
+            .info-box {
+                position: absolute;
+                bottom: 5px; /* 모바일에서 안내창 위치 조정 */
+                left: 10px;
+                width: calc(100% - 20px); /* 모바일 환경에서 기본 너비 */
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: none; /* 그림자 효과 제거 */
             }
         }
     </style>
@@ -63,13 +54,14 @@
 
     <h1>여행지 및 식당 안내</h1>
     <button id="locationButton">현재 위치 보기</button>
+    
+    <!-- PC 환경 -->
     <div id="map"></div>
-    <div class="info-box" id="infoBox">
-        <h3>가게이름 : 맛잇다식당</h3>
-        <p>가게주소 : 서울군</p>
-        <p>영업시간 : 1시간</p>
-        <p>YouTube Link : <a href="https://www.youtube.com/watch?v=gCWIa4TwcPc" target="_blank">https://www.youtube.com/watch?v=gCWIa4TwcPc</a></p>
-    </div>
+    <div class="info-box" id="infoBox"></div>
+
+    <!-- 모바일 환경 -->
+    <div id="mapMobile" style="display:none;"></div>
+    <div class="info-box" id="infoBoxMobile"></div>
 
     <script>
         let map;
@@ -79,16 +71,34 @@
         let isTracking = false;
         let firstClick = true;
 
+        // 핀 위치 정보
+        const locations = [
+            { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc", address: "서울군", hours: "1시간" }
+        ];
+
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 12.7882166, lng: 101.135258 },
+                center: { lat: locations[0].lat, lng: locations[0].lng },
                 zoom: 10,
             });
 
-            const locations = [
-                { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
-            ];
+            initializeMarkers(map, infoBox);
 
+            // 모바일 환경 초기화
+            if (window.innerWidth <= 768) {
+                document.getElementById("map").style.display = "none";
+                document.getElementById("mapMobile").style.display = "block";
+
+                const mobileMap = new google.maps.Map(document.getElementById("mapMobile"), {
+                    center: { lat: locations[0].lat, lng: locations[0].lng },
+                    zoom: 10,
+                });
+
+                initializeMarkers(mobileMap, infoBoxMobile);
+            }
+        }
+
+        function initializeMarkers(currentMap, infoBox) {
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -97,14 +107,14 @@
                 });
 
                 marker.addListener("click", () => {
-                    showInfoBox(location.title, location.videoId, marker.getPosition());
-                    map.panTo(marker.getPosition());
+                    showInfoBox(location.title, location.address, location.hours, location.videoId, infoBox);
+                    currentMap.panTo(marker.getPosition());
                 });
                 
                 // 줌 레벨에 따라 마커 표시
-                map.addListener('zoom_changed', () => {
-                    const zoom = map.getZoom();
-                    marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
+                currentMap.addListener('zoom_changed', () => {
+                    const zoom = currentMap.getZoom();
+                    marker.setMap(zoom >= 16 ? currentMap : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
                 });
             });
         }
@@ -181,13 +191,14 @@
             }
         }
 
-        function showInfoBox(title, videoId, position) {
-            const infoBox = document.getElementById("infoBox");
+        function showInfoBox(title, address, hours, videoId, infoBox) {
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
             
             infoBox.innerHTML = `
-                <h3>${title}</h3>
-                <iframe width="280" height="157" src="${videoLink}" frameborder="0" allowfullscreen></iframe>
+                <h3>가게이름 : ${title}</h3>
+                <p>가게주소 : ${address}</p>
+                <p>영업시간 : ${hours}</p>
+                <p>YouTube Link : <a href="${videoLink}" target="_blank">${videoLink}</a></p>
             `;
             infoBox.style.display = 'block';
         }
