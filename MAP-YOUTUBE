@@ -8,7 +8,7 @@
       width: 100%;
     }
   </style>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places&callback=initMap"></script>
 </head>
 <body>
   <div id="map"></div>
