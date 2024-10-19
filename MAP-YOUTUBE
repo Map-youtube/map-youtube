@@ -12,7 +12,7 @@
         }
         #map {
             height: 600px; /* 기본 높이 */
-            width: 100%;
+            width: 100%; /* 모바일 환경에서 100%로 채움 */
         }
         #locationButton {
             margin: 10px;
@@ -23,7 +23,7 @@
             position: absolute;
             bottom: 10px; /* 기본 위치 */
             left: 10px;
-            width: calc(100% - 20px); /* 기본 너비 */
+            width: calc(100% - 20px); /* 모바일 환경에서 기본 너비 */
             background: white;
             padding: 10px;
             border-radius: 5px;
@@ -41,16 +41,17 @@
         /* PC 환경에서 화면 비율 조정 */
         @media (min-width: 769px) {
             #map {
-                width: 60%;
-                height: 600px;
+                width: 60%; /* PC 환경에서 지도는 60% */
+                height: 600px; /* 고정 높이 */
                 float: left; /* 지도 왼쪽 배치 */
             }
             .info-box {
                 position: static; /* 절대 위치 해제 */
-                width: 40%;
-                float: left; /* 안내 창 오른쪽 배치 */
-                height: 600px; /* 지도와 같은 높이 */
+                width: 40%; /* 안내창을 40%로 설정 */
+                float: left; /* 안내창을 지도 오른쪽에 배치 */
+                height: 600px; /* 지도와 같은 높이로 맞춤 */
                 overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
+                box-sizing: border-box; /* 패딩과 폭을 제대로 계산 */
             }
             #locationButton {
                 display: none; /* PC에서는 위치 버튼 숨김 */
@@ -80,7 +81,7 @@
             });
 
             const locations = [
-                { title: "맛집 ㅊ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
+                { title: "맛집 ㅁㅁ", lat: 12.7874027, lng: 101.135227, videoId: "a1BcD2EfGHQ" }
             ];
 
             locations.forEach(location => {
