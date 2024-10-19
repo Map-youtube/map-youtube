@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>여행지 및 식당 안내</title>
-    <link rel="stylesheet" href="styles.css"> <!-- CSS 파일 링크 (추가 스타일링을 위해) -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
+    <link rel="stylesheet" href="styles.css"> <!-- 필요에 따라 추가 스타일링을 위해 CSS 파일을 링크합니다. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script> <!-- 구글 맵 API 키를 넣으세요 -->
     <style>
         /* 간단한 스타일링 추가 */
         body {
@@ -23,16 +23,24 @@
             padding: 10px;
             z-index: 100;
         }
+        #locationButton {
+            margin: 10px;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
 
     <h1>여행지 및 식당 안내</h1>
+    <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="popup" id="popup"></div>
 
     <script>
         let map;
+        let marker;
+        const visibilityZoomLevel = 12; // 핀이 보일 최소 확대 수준
+
         function initMap() {
             // 맵 초기화
             map = new google.maps.Map(document.getElementById("map"), {
@@ -47,6 +55,7 @@
                 { title: "여행지 B", lat: 37.580000, lng: 127.010000, videoId: "b2CdEfGhij3" }
             ];
 
+            // 위치에 대한 마커 생성
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
@@ -59,8 +68,46 @@
                     showPopup(location.title, location.videoId, marker.getPosition());
                 });
             });
+
+            // 지도 확대/축소 이벤트 감지
+            map.addListener('zoom_changed', function() {
+                if (marker) {
+                    marker.setMap(map.getZoom() >= visibilityZoomLevel ? map : null);
+                }
+            });
         }
 
+        // 현재 위치 찾기 함수
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setMarker(pos);
+                    map.setCenter(pos);
+                }, () => {
+                    handleLocationError(true);
+                });
+            } else {
+                handleLocationError(false);
+            }
+        }
+
+        // 핀 추가 함수
+        function setMarker(position) {
+            if (marker) {
+                marker.setMap(null); // 기존 핀 제거
+            }
+            marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                title: "현재 위치"
+            });
+        }
+
+        // 팝업 표시 함수
         function showPopup(title, videoId, position) {
             const popup = document.getElementById("popup");
             const videoLink = `https://www.youtube.com/embed/${videoId}`;
@@ -75,6 +122,20 @@
             popup.style.left = position.lng() + 'px';  // Popup 위치 설정
             popup.style.top = position.lat() + 'px';
         }
+
+        // 에러 처리 함수
+        function handleLocationError(browserHasGeolocation) {
+            const infoWindow = new google.maps.InfoWindow();
+            infoWindow.setPosition(map.getCenter());
+            infoWindow.setContent(browserHasGeolocation ? 
+                                   "Error: The Geolocation service failed." : 
+                                   "Error: Your browser doesn't support geolocation.");
+            infoWindow.open(map);
+        }
+
+        // 버튼 클릭 시 현재 위치 보기
+        document.getElementById("locationButton").addEventListener("click", getLocation);
+        window.onload = initMap; // 페이지 로드 시 맵 초기화
     </script>
 </body>
 </html>
