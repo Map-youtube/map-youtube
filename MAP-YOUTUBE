@@ -107,7 +107,17 @@
                 });
 
                 // 정보 창에 장소 이름 및 정보를 설정
-                infowindow.setContent(`<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`);
+                infowindow.setContent(`
+    <div>
+        <strong>${place.name}</strong><br>
+        ${place.formatted_address}<br>
+        전화번호: ${place.formatted_phone_number || '정보 없음'}<br>
+        <a href="${place.website}" target="_blank">웹사이트 방문하기</a><br>
+        운영 시간: ${place.opening_hours ? place.opening_hours.weekday_text.join(', ') : '정보 없음'}<br>
+        ${place.photos ? `<img src="${place.photos[0].getUrl({maxWidth: 100})}" alt="${place.name}" style="width: 100px;">` : ''}
+    </div>
+`);
+
                 
                 // 마커에 정보 창을 열기
                 infowindow.open(map, marker);
