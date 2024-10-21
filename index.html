@@ -11,8 +11,10 @@
             height: 600px; /* 파일에서 요구한 높이 */
         }
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <script>
+        var markers = []; // 마커 배열
+        
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 37.5665, lng: 126.9780 }, // 서울 좌표
@@ -32,6 +34,12 @@
                     return;
                 }
 
+                // 이전 마커 제거
+                markers.forEach(function(marker) {
+                    marker.setMap(null);
+                });
+                markers = []; // 배열 초기화
+
                 var bounds = new google.maps.LatLngBounds();
                 places.forEach(function(place) {
                     if (!place.geometry) {
@@ -39,23 +47,23 @@
                         return;
                     }
 
-                    // 검색 결과를 클릭했을 때 해당 위치로 이동
-                    if (place.geometry.viewport) {
-                        bounds.union(place.geometry.viewport);
-                    } else {
-                        bounds.extend(place.geometry.location);
-                    }
+                    // 마커 생성
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: place.geometry.location
+                    });
+
+                    markers.push(marker); // 마커 배열에 저장
 
                     // 정보창 생성
                     var infowindow = new google.maps.InfoWindow({
                         content: `<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`
                     });
 
-                    var marker = new google.maps.Marker({
-                        map: map,
-                        position: place.geometry.location
-                    });
+                    // 마커 클릭 시 정보창 열기
+                    infowindow.open(map, marker);
 
+                    // 클릭 시 정보창을 마커에 표시
                     marker.addListener('click', function() {
                         infowindow.open(map, marker);
                     });
@@ -64,6 +72,13 @@
                     map.addListener('click', function() {
                         infowindow.close();
                     });
+
+                    // 경계 확장
+                    if (place.geometry.viewport) {
+                        bounds.union(place.geometry.viewport);
+                    } else {
+                        bounds.extend(place.geometry.location);
+                    }
                 });
                 map.fitBounds(bounds);
             });
