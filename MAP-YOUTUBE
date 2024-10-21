@@ -75,7 +75,7 @@
 
             infowindow = new google.maps.InfoWindow(); // 전역 변수로 설정
 
-            // 지도의 다른 부분을 클릭하면 정보 창 닫기
+            // 지도의 빈 곳을 클릭하면 정보 창 닫기
             map.addListener('click', () => {
                 infowindow.close();
             });
