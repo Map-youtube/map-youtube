@@ -75,6 +75,8 @@
                     infowindow.open(map, marker);
 
                     marker.addListener('click', function() {
+                        // 클릭된 마커의 정보창은 따로 저장
+                        infoWindows.push(infowindow);
                         // 모든 정보창 닫기
                         infoWindows.forEach(function(iw) {
                             iw.close();
