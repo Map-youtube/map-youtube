@@ -159,9 +159,11 @@ function trackUserLocation() {
                 map.setCenter(pos); // 현재 위치로 지도 중심 이동
                 map.setZoom(16); // 줌 레벨 조정
                 firstClick = false; // 첫 클릭 이후로는 zoom 변경 없음
-            } else if (isTracking && !firstClick) {
-                map.setCenter(pos); // 위치는 계속 업데이트
             }
+            // 이 부분을 제거하여 사용자가 지도를 이동하더라도 자동으로 중심이 이동하지 않도록 함
+            // else if (isTracking && !firstClick) {
+            //     map.setCenter(pos); // 위치는 계속 업데이트
+            // }
         }, () => {
             alert("위치 정보를 가져올 수 없습니다.");
         }, {
@@ -173,6 +175,7 @@ function trackUserLocation() {
         alert("브라우저가 위치 서비스를 지원하지 않습니다.");
     }
 }
+
 
         function updateUserMarker(position) {
             if (!userMarker) {
