@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>여행지 및 식당 안내</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,25 +73,11 @@
                 display: none; /* PC에서는 위치 버튼 숨김 */
             }
         }
-
-        /* 검색창 위치 스타일 */
-        .pac-container {
-            z-index: 1000;
-        }
-        #searchInput {
-            position: absolute;
-            top: 10px;  /* "지도, 위성" 버튼 아래 위치 */
-            left: 10px;
-            width: 250px;
-            z-index: 5; /* 맵 위에 나타나도록 함 */
-            padding: 10px;
-        }
     </style>
 </head>
 <body>
 
     <h1>여행지 및 식당 안내</h1>
-    <input id="searchInput" type="text" placeholder="검색어 입력">
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="info-box" id="infoBox">
@@ -138,36 +124,6 @@
                 map.addListener('zoom_changed', () => {
                     const zoom = map.getZoom();
                     marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
-                });
-            });
-
-            // 검색창 추가 (Autocomplete)
-            const input = document.getElementById("searchInput");
-            const autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
-
-                if (!place.geometry || !place.geometry.location) {
-                    alert("검색 결과가 없습니다.");
-                    return;
-                }
-
-                // 검색한 위치로 지도 이동
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(16);
-                }
-
-                // 검색 결과에 따른 정보창 출력
-                showInfoBox({
-                    title: place.name,
-                    address: place.formatted_address || "정보 없음",
-                    hours: place.opening_hours ? (place.opening_hours.open_now ? "영업 중" : "영업 종료") : "영업시간 정보 없음",
-                    videoId: "" // 검색 결과에 대한 YouTube 영상은 없을 수 있음
                 });
             });
 
@@ -231,34 +187,49 @@
                         scale: 5,
                         rotation: position.heading,
                         fillColor: "blue",
-                        fillOpacity: 0.8,
-                        strokeColor: "blue",
+                        fillOpacity: 1,
                         strokeWeight: 2
                     }
                 });
+
                 userCircle = new google.maps.Circle({
                     center: { lat: position.lat, lng: position.lng },
-                    radius: 30,
-                    strokeColor: "#4A90E2",
+                    radius: 50,
+                    map: map,
+                    fillColor: '#ADD8E6',
+                    fillOpacity: 0.3,
+                    strokeColor: '#1E90FF',
                     strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: "#4A90E2",
-                    fillOpacity: 0.35,
-                    map: map
+                    strokeWeight: 2
                 });
             } else {
                 userMarker.setPosition({ lat: position.lat, lng: position.lng });
+                userMarker.setIcon({
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    scale: 5,
+                    rotation: position.heading,
+                    fillColor: "blue",
+                    fillOpacity: 1,
+                    strokeWeight: 2
+                });
+
                 userCircle.setCenter({ lat: position.lat, lng: position.lng });
             }
         }
 
         function showInfoBox(location) {
-            document.getElementById("storeName").innerText = location.title;
-            document.getElementById("storeAddress").innerText = location.address;
-            document.getElementById("storeHours").innerText = location.hours;
-            document.getElementById("youtubeLink").href = `https://www.youtube.com/watch?v=${location.videoId}`;
-            document.getElementById("infoBox").style.display = "block";
-            document.getElementById("youtubeEmbed").style.display = "none"; // 초기에는 유튜브 숨김
+            document.getElementById("storeName").textContent = location.title;
+            document.getElementById("storeAddress").textContent = location.address;
+            document.getElementById("storeHours").textContent = location.hours;
+
+            document.getElementById("infoBox").style.display = 'block';
+            
+            // YouTube 링크를 클릭하면 영상 보이기
+            const videoLink = `https://www.youtube.com/embed/${location.videoId}`;
+            document.querySelector("#youtubeEmbed iframe").src = videoLink;
+
+            // 영상 표시
+            document.getElementById("youtubeEmbed").style.display = 'block';
         }
 
         document.getElementById("locationButton").addEventListener("click", function() {
