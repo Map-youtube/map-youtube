@@ -8,14 +8,14 @@
         /* 지도 스타일 */
         #map {
             width: 100%;
-            height: 600px; /* 파일에서 요구한 높이 */
+            height: 600px;
         }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places"></script>
     <script>
         var markers = []; // 마커 배열
         var infoWindows = []; // 정보창 배열
-        
+
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 37.5665, lng: 126.9780 }, // 서울 좌표
@@ -27,6 +27,9 @@
             var searchBox = new google.maps.places.SearchBox(input);
 
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+            // 장소 상세 정보를 가져오기 위한 서비스
+            var service = new google.maps.places.PlacesService(map);
 
             // 지도 외부를 클릭하면 모든 정보창 닫기
             map.addListener('click', function() {
@@ -64,25 +67,39 @@
 
                     markers.push(marker); // 마커 배열에 저장
 
-                    // 정보창 생성
-                    var infowindow = new google.maps.InfoWindow({
-                        content: `<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`
-                    });
+                    // 장소 세부 정보 요청
+                    service.getDetails({ placeId: place.place_id }, function(details, status) {
+                        if (status === google.maps.places.PlacesServiceStatus.OK) {
+                            // 정보창에 표시할 내용 구성
+                            var content = `
+                                <div><strong>${details.name}</strong></div>
+                                <div><strong>주소:</strong> ${details.formatted_address || '정보 없음'}</div>
+                                <div><strong>전화번호:</strong> ${details.formatted_phone_number || '정보 없음'}</div>
+                                <div><strong>웹사이트:</strong> <a href="${details.website}" target="_blank">${details.website || '정보 없음'}</a></div>
+                                <div><strong>영업시간:</strong> ${details.opening_hours ? details.opening_hours.weekday_text.join('<br>') : '정보 없음'}</div>
+                                <div><strong>평점:</strong> ${details.rating || '정보 없음'} / 5</div>
+                                <div><strong>리뷰:</strong> ${details.reviews && details.reviews.length > 0 ? details.reviews[0].text : '리뷰 없음'}</div>
+                            `;
 
-                    infoWindows.push(infowindow); // 정보창 배열에 저장
+                            // 정보창 생성
+                            var infowindow = new google.maps.InfoWindow({
+                                content: content
+                            });
 
-                    // 마커 클릭 시 정보창 열기
-                    infowindow.open(map, marker);
+                            infoWindows.push(infowindow); // 정보창 배열에 저장
 
-                    marker.addListener('click', function() {
-                        // 클릭된 마커의 정보창은 따로 저장
-                        infoWindows.push(infowindow);
-                        // 모든 정보창 닫기
-                        infoWindows.forEach(function(iw) {
-                            iw.close();
-                        });
-                        // 클릭한 마커의 정보창 열기
-                        infowindow.open(map, marker);
+                            // 마커 클릭 시 정보창 열기
+                            infowindow.open(map, marker);
+
+                            marker.addListener('click', function() {
+                                // 모든 정보창 닫기
+                                infoWindows.forEach(function(iw) {
+                                    iw.close();
+                                });
+                                // 클릭한 마커의 정보창 열기
+                                infowindow.open(map, marker);
+                            });
+                        }
                     });
 
                     // 경계 확장
