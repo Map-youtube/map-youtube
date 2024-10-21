@@ -130,6 +130,11 @@
                 
                 // 마커에 정보 창을 열기
                 infowindow.open(map, marker);
+
+                // 클릭 시 정보 창 닫기
+                marker.addListener('click', () => {
+                    infowindow.open(map, marker);
+                });
             });
         }
 
