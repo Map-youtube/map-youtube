@@ -22,31 +22,31 @@
 
             service = new google.maps.places.PlacesService(map);
 
-            // 지도 클릭 시, 해당 위치의 장소 정보 검색 및 표시
+            // 지도 클릭 시, 클릭한 위치에 가까운 구글맵에 등록된 장소 정보 검색
             map.addListener('click', function(event) {
                 const location = event.latLng;
                 getPlaceDetails(location);
             });
         }
 
-        // 클릭한 좌표에 대한 장소 세부 정보 요청
+        // 클릭한 좌표에 대한 구글 등록된 장소 세부 정보 요청
         function getPlaceDetails(location) {
             const request = {
                 location: location,
-                radius: '1', // 클릭한 위치에서 매우 가까운 반경 설정
+                radius: '10', // 클릭한 위치에서 가까운 반경 설정
             };
 
-            // 마커 생성
-            const marker = new google.maps.Marker({
-                map: map,
-                position: location
-            });
-
-            // 좌표를 기반으로 장소 정보를 요청
+            // 좌표를 기반으로 구글에 등록된 장소 정보를 요청
             service.nearbySearch(request, function(results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     if (results.length > 0) {
-                        const place = results[0]; // 가장 가까운 장소 정보
+                        const place = results[0]; // 가장 가까운 등록된 장소 정보
+
+                        // 등록된 장소에 마커 생성
+                        const marker = new google.maps.Marker({
+                            map: map,
+                            position: place.geometry.location
+                        });
 
                         // 정보창에 표시할 내용 구성
                         const infowindow = new google.maps.InfoWindow({
@@ -59,13 +59,15 @@
                         });
 
                         // 마커 클릭 시 정보창 열기
+                        marker.addListener('click', function() {
+                            infowindow.open(map, marker);
+                        });
+
+                        // 마커 생성 후 자동으로 정보창 열기
                         infowindow.open(map, marker);
                     } else {
-                        // 장소 정보가 없을 때 기본 정보창
-                        const infowindow = new google.maps.InfoWindow({
-                            content: `<div>등록된 정보가 없습니다.</div>`
-                        });
-                        infowindow.open(map, marker);
+                        // 구글에 등록된 장소가 없으면 아무것도 하지 않음
+                        console.log('등록된 장소가 없습니다.');
                     }
                 }
             });
