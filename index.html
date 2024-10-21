@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>구글맵 클릭 위치 정보</title>
+    <title>여행지 정보 및 유튜브 연동</title>
     <style>
-        /* 지도 스타일 */
         #map {
             width: 100%;
             height: 600px;
@@ -13,165 +12,65 @@
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places"></script>
     <script>
-        var markers = []; // 마커 배열
-        var infoWindows = []; // 정보창 배열
-        var service; // Places 서비스
+        let map, service;
 
         function initMap() {
-            var map = new google.maps.Map(document.getElementById('map'), {
+            map = new google.maps.Map(document.getElementById('map'), {
                 center: { lat: 37.5665, lng: 126.9780 }, // 서울 좌표
                 zoom: 10
             });
 
             service = new google.maps.places.PlacesService(map);
 
-            // 검색창
-            var input = document.getElementById('search-input');
-            var searchBox = new google.maps.places.SearchBox(input);
-
-            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-            // 지도 외부를 클릭하면 모든 정보창 닫기
+            // 지도 클릭 시, 해당 위치 주변의 장소 검색
             map.addListener('click', function(event) {
-                // 이전 정보창 닫기
-                infoWindows.forEach(function(infowindow) {
-                    infowindow.close();
-                });
-
-                // 클릭한 위치 주변의 장소 검색
-                searchNearbyPlaces(event.latLng, map);
-            });
-
-            searchBox.addListener('places_changed', function() {
-                var places = searchBox.getPlaces();
-
-                if (places.length === 0) {
-                    return;
-                }
-
-                // 이전 마커와 정보창 제거
-                markers.forEach(function(marker) {
-                    marker.setMap(null);
-                });
-                markers = [];
-                infoWindows = [];
-
-                var bounds = new google.maps.LatLngBounds();
-                places.forEach(function(place) {
-                    if (!place.geometry) {
-                        console.log("Returned place contains no geometry");
-                        return;
-                    }
-
-                    // 마커 생성
-                    var marker = new google.maps.Marker({
-                        map: map,
-                        position: place.geometry.location
-                    });
-
-                    markers.push(marker);
-
-                    // 장소 세부 정보 요청
-                    service.getDetails({ placeId: place.place_id }, function(details, status) {
-                        if (status === google.maps.places.PlacesServiceStatus.OK) {
-                            // 정보창에 표시할 내용 구성
-                            var content = `
-                                <div><strong>${details.name}</strong></div>
-                                <div><strong>주소:</strong> ${details.formatted_address || '정보 없음'}</div>
-                                <div><strong>전화번호:</strong> ${details.formatted_phone_number || '정보 없음'}</div>
-                                <div><strong>웹사이트:</strong> <a href="${details.website}" target="_blank">${details.website || '정보 없음'}</a></div>
-                                <div><strong>영업시간:</strong> ${details.opening_hours ? details.opening_hours.weekday_text.join('<br>') : '정보 없음'}</div>
-                                <div><strong>평점:</strong> ${details.rating || '정보 없음'} / 5</div>
-                                <div><strong>리뷰:</strong> ${details.reviews && details.reviews.length > 0 ? details.reviews[0].text : '리뷰 없음'}</div>
-                            `;
-
-                            // 정보창 생성
-                            var infowindow = new google.maps.InfoWindow({
-                                content: content
-                            });
-
-                            infoWindows.push(infowindow); // 정보창 배열에 저장
-
-                            // 마커 클릭 시 정보창 열기
-                            infowindow.open(map, marker);
-
-                            marker.addListener('click', function() {
-                                // 모든 정보창 닫기
-                                infoWindows.forEach(function(iw) {
-                                    iw.close();
-                                });
-                                // 클릭한 마커의 정보창 열기
-                                infowindow.open(map, marker);
-                            });
-                        }
-                    });
-
-                    // 경계 확장
-                    if (place.geometry.viewport) {
-                        bounds.union(place.geometry.viewport);
-                    } else {
-                        bounds.extend(place.geometry.location);
-                    }
-                });
-                map.fitBounds(bounds);
+                const location = event.latLng;
+                searchNearbyPlaces(location);
             });
         }
 
-        // 클릭한 위치 주변의 장소 검색
-        function searchNearbyPlaces(latLng, map) {
-            var request = {
-                location: latLng,
-                radius: '500', // 500m 반경 내 검색
-                type: ['store'] // 장소 유형 (예: 음식점, 상점 등)
+        // 클릭한 위치 주변의 장소 검색 및 마커 표시
+        function searchNearbyPlaces(location) {
+            const request = {
+                location: location,
+                radius: '500', // 반경 500m
+                type: ['restaurant', 'tourist_attraction']
             };
 
             service.nearbySearch(request, function(results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     results.forEach(function(place) {
-                        // 마커 생성
-                        var marker = new google.maps.Marker({
-                            map: map,
-                            position: place.geometry.location
-                        });
-
-                        markers.push(marker); // 마커 배열에 저장
-
-                        // 정보창 생성
-                        var content = `
-                            <div><strong>${place.name}</strong></div>
-                            <div><strong>주소:</strong> ${place.vicinity || '정보 없음'}</div>
-                            <div><strong>평점:</strong> ${place.rating || '정보 없음'} / 5</div>
-                        `;
-
-                        var infowindow = new google.maps.InfoWindow({
-                            content: content
-                        });
-
-                        infoWindows.push(infowindow); // 정보창 배열에 저장
-
-                        // 마커 클릭 시 정보창 열기
-                        marker.addListener('click', function() {
-                            // 모든 정보창 닫기
-                            infoWindows.forEach(function(iw) {
-                                iw.close();
-                            });
-                            // 클릭한 마커의 정보창 열기
-                            infowindow.open(map, marker);
-                        });
+                        createMarker(place);
                     });
                 }
+            });
+        }
+
+        // 장소에 마커 및 정보창 생성
+        function createMarker(place) {
+            const marker = new google.maps.Marker({
+                map: map,
+                position: place.geometry.location
+            });
+
+            const infowindow = new google.maps.InfoWindow({
+                content: `
+                    <div><strong>${place.name}</strong></div>
+                    <div>${place.vicinity}</div>
+                    <div><strong>평점:</strong> ${place.rating || '정보 없음'} / 5</div>
+                    <div><iframe width="300" height="200" src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID" frameborder="0" allowfullscreen></iframe></div>
+                `
+            });
+
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
             });
         }
     </script>
 </head>
 <body onload="initMap()">
-    <h1>구글맵 클릭 위치 정보</h1>
-
-    <!-- 검색창 -->
-    <input id="search-input" class="controls" type="text" placeholder="위치 검색">
-
-    <!-- 구글맵 -->
+    <h1>여행지 정보 및 유튜브 연동</h1>
+    <input id="search-input" class="controls" type="text" placeholder="여행지 검색">
     <div id="map"></div>
-
 </body>
 </html>
