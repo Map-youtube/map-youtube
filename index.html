@@ -67,7 +67,62 @@
         let map, infowindow; // infowindow를 전역 변수로 선언
         let markers = []; // 마커들을 저장할 배열
 
-function initMap()
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.7882166, lng: 101.135258 },
+                zoom: 10,
+            });
+
+            infowindow = new google.maps.InfoWindow(); // 전역 변수로 설정
+
+            // 지도의 빈 곳을 클릭하면 정보 창 닫기
+            map.addListener('click', () => {
+                infowindow.close();
+            });
+
+            initAutocomplete();
+        }
+
+        function initAutocomplete() {
+            const input = document.getElementById('pac-input');
+            const autocomplete = new google.maps.places.Autocomplete(input);
+
+            // 검색 결과를 선택하면 해당 위치로 지도를 이동
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry || !place.geometry.location) {
+                    alert("검색된 장소의 위치를 찾을 수 없습니다.");
+                    return;
+                }
+
+                // 검색된 위치로 지도를 이동하고 줌 레벨 설정
+                map.setCenter(place.geometry.location);
+                map.setZoom(15); // 적절한 줌 레벨로 설정
+
+                // 검색된 장소에 마커 추가
+                const marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location
+                });
+
+                // 정보 창에 장소 이름 및 정보를 설정
+                infowindow.setContent(`<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`);
+                
+                // 마커에 정보 창을 열기
+                infowindow.open(map, marker);
+
+                // 클릭 시 정보 창 닫기
+                marker.addListener('click', () => {
+                    infowindow.open(map, marker);
+                });
+
+                // 지도의 빈 곳을 클릭하면 정보 창 닫기
+                map.addListener('click', () => {
+                    infowindow.close();
+                });
+            });
+        }
 
         let userMarker, userCircle, watchId, isTracking = false, firstClick = true;
 
