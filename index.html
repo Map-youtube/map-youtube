@@ -65,6 +65,7 @@
 
     <script>
         let map, infowindow; // infowindow를 전역 변수로 선언
+        let markers = []; // 마커들을 저장할 배열
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
@@ -72,14 +73,11 @@
                 zoom: 10,
             });
 
-            // 지도의 기본 마커 클릭 시 해당 위치로 지도 중심 이동
-            map.addListener('click', (event) => {
-                infowindow.close(); // 다른 곳 클릭 시 정보 창 닫기
-                if (event.placeId) { 
-                    // 클릭한 곳이 POI 마커일 때만 실행
-                    event.stop(); // 기본 동작(예: 장소 정보 표시) 막기
-                    map.panTo(event.latLng); // 클릭한 POI의 위치로 지도 중심 이동
-                }
+            infowindow = new google.maps.InfoWindow(); // 전역 변수로 설정
+
+            // 지도의 다른 부분을 클릭하면 정보 창 닫기
+            map.addListener('click', () => {
+                infowindow.close();
             });
 
             const locations = [
@@ -89,19 +87,15 @@
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
-                    map: null, // 초기에는 맵에 표시하지 않음
+                    map: map,
                     title: location.title,
                 });
 
-                marker.addListener("click", () => {
-                    map.panTo(marker.getPosition());
-                    map.setZoom(16); // 마커 클릭 시 확대
-                });
+                markers.push(marker); // 배열에 마커 추가
 
-                // 줌 레벨에 따라 마커 표시
-                map.addListener('zoom_changed', () => {
-                    const zoom = map.getZoom();
-                    marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
+                marker.addListener("click", () => {
+                    infowindow.setContent(`<div><strong>${location.title}</strong><br>${marker.getPosition().toUrlValue()}</div>`);
+                    infowindow.open(map, marker);
                 });
             });
 
@@ -110,8 +104,6 @@
 
         function initAutocomplete() {
             const input = document.getElementById('pac-input');
-            infowindow = new google.maps.InfoWindow(); // 전역 변수로 설정
-
             const autocomplete = new google.maps.places.Autocomplete(input);
 
             // 검색 결과를 선택하면 해당 위치로 지도를 이동
