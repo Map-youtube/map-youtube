@@ -76,7 +76,7 @@ function initMap() {
     infowindow = new google.maps.InfoWindow(); // 전역 변수로 설정
 
     // 지도의 빈 곳을 클릭하면 정보 창 닫기
-    map.addListener('click', (event) => {
+    map.addListener('click', () => {
         infowindow.close();
     });
 
@@ -91,32 +91,30 @@ function initMap() {
         };
 
         service.nearbySearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK) {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
                 const place = results[0]; // 가장 가까운 장소 선택
-                if (place) {
-                    infowindow.setContent(`
-                        <div>
-                            <strong>${place.name}</strong><br>
-                            ${place.vicinity || '위치 정보 없음'}<br>
-                            전화번호: ${place.formatted_phone_number || '정보 없음'}<br>
-                            <a href="${place.website}" target="_blank">웹사이트 방문하기</a><br>
-                            운영 시간: ${place.opening_hours ? place.opening_hours.weekday_text.join(', ') : '정보 없음'}<br>
-                            ${place.photos ? `<img src="${place.photos[0].getUrl({maxWidth: 100})}" alt="${place.name}" style="width: 100px;">` : ''}
-                        </div>
-                    `);
-                    infowindow.setPosition(latLng); // 정보 창 위치 설정
-                    infowindow.open(map); // 정보 창 열기
-                }
-            } else {
-                infowindow.setContent('해당 위치에서 장소를 찾을 수 없습니다.');
+                infowindow.setContent(`
+                    <div>
+                        <strong>${place.name}</strong><br>
+                        ${place.vicinity || '위치 정보 없음'}<br>
+                        전화번호: ${place.formatted_phone_number || '정보 없음'}<br>
+                        <a href="${place.website}" target="_blank">웹사이트 방문하기</a><br>
+                        운영 시간: ${place.opening_hours ? place.opening_hours.weekday_text.join(', ') : '정보 없음'}<br>
+                        ${place.photos ? `<img src="${place.photos[0].getUrl({maxWidth: 100})}" alt="${place.name}" style="width: 100px;">` : ''}
+                    </div>
+                `);
                 infowindow.setPosition(latLng); // 정보 창 위치 설정
                 infowindow.open(map); // 정보 창 열기
+            } else {
+                // 장소가 없을 경우 정보 창을 열지 않음
+                console.log('해당 위치에서 등록된 장소를 찾을 수 없습니다.');
             }
         });
     });
 
     initAutocomplete();
 }
+
 
         function initAutocomplete() {
             const input = document.getElementById('pac-input');
