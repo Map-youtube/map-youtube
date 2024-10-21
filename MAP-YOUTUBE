@@ -100,12 +100,6 @@ function initMap() {
         });
 
     // 각 마커에 클릭 이벤트 추가
-    locations.forEach(location => {
-        const marker = new google.maps.Marker({
-            position: { lat: location.lat, lng: location.lng },
-            map: null, // 초기에는 맵에 표시하지 않음
-            title: location.title,
-        });
 
         marker.addListener("click", () => {
             // 기존의 안내창이 열려있다면 닫기
