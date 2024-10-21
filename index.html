@@ -80,24 +80,6 @@
                 infowindow.close();
             });
 
-            const locations = [
-                { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227 }
-            ];
-
-            locations.forEach(location => {
-                const marker = new google.maps.Marker({
-                    position: { lat: location.lat, lng: location.lng },
-                    map: map,
-                    title: location.title,
-                });
-
-                markers.push(marker); // 배열에 마커 추가
-
-                marker.addListener("click", () => {
-                    infowindow.setContent(`<div><strong>${location.title}</strong><br>${marker.getPosition().toUrlValue()}</div>`);
-                    infowindow.open(map, marker);
-                });
-            });
 
             initAutocomplete();
         }
