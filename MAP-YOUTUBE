@@ -14,6 +14,11 @@
             height: 600px; /* 기본 높이 */
             width: 100%; /* 모바일 환경에서 100%로 채움 */
         }
+        #locationButton {
+            margin: 10px;
+            padding: 10px;
+            display: block; /* 기본적으로 모바일에서는 표시 */
+        }
         .info-box {
             position: absolute;
             bottom: 10px; /* 기본 위치 */
@@ -64,6 +69,9 @@
                 overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
                 box-sizing: border-box; /* 패딩과 폭을 제대로 계산 */
             }
+            #locationButton {
+                display: none; /* PC에서는 위치 버튼 숨김 */
+            }
         }
 
         /* 검색창 위치 스타일 */
@@ -84,6 +92,7 @@
 
     <h1>여행지 및 식당 안내</h1>
     <input id="searchInput" type="text" placeholder="검색어 입력">
+    <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="info-box" id="infoBox">
         <h3 id="storeName"></h3>
@@ -97,6 +106,11 @@
 
     <script>
         let map;
+        let userMarker;
+        let userCircle;
+        let watchId;
+        let isTracking = false;
+        let firstClick = true;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
@@ -106,20 +120,24 @@
 
             const locations = [
                 { title: "맛잇다식당", address: "서울군", hours: "1시간", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
-                // 더 많은 위치를 추가할 수 있음
             ];
 
             locations.forEach(location => {
                 const marker = new google.maps.Marker({
                     position: { lat: location.lat, lng: location.lng },
-                    map: map, // 마커 초기화 시 지도에 표시
+                    map: null, // 초기에는 맵에 표시하지 않음
                     title: location.title,
                 });
 
-                // 마커 클릭 시 안내창에 정보 표시
                 marker.addListener("click", () => {
                     showInfoBox(location);
                     map.panTo(marker.getPosition());
+                });
+                
+                // 줌 레벨에 따라 마커 표시
+                map.addListener('zoom_changed', () => {
+                    const zoom = map.getZoom();
+                    marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
                 });
             });
 
@@ -171,6 +189,69 @@
             });
         }
 
+        function trackUserLocation() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        heading: position.coords.heading || 0
+                    };
+                    updateUserMarker(pos);
+
+                    if (isTracking && firstClick) {
+                        map.panTo(pos);
+                        map.setZoom(16);
+                        firstClick = false;
+                        isTracking = false;
+                    } else if (isTracking && !firstClick) {
+                        map.panTo(pos);
+                        isTracking = false;
+                    }
+                }, () => {
+                    alert("위치 정보를 가져올 수 없습니다.");
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                });
+            } else {
+                alert("브라우저가 위치 서비스를 지원하지 않습니다.");
+            }
+        }
+
+        function updateUserMarker(position) {
+            if (!userMarker) {
+                userMarker = new google.maps.Marker({
+                    position: { lat: position.lat, lng: position.lng },
+                    map: map,
+                    title: "현재 위치",
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 5,
+                        rotation: position.heading,
+                        fillColor: "blue",
+                        fillOpacity: 0.8,
+                        strokeColor: "blue",
+                        strokeWeight: 2
+                    }
+                });
+                userCircle = new google.maps.Circle({
+                    center: { lat: position.lat, lng: position.lng },
+                    radius: 30,
+                    strokeColor: "#4A90E2",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#4A90E2",
+                    fillOpacity: 0.35,
+                    map: map
+                });
+            } else {
+                userMarker.setPosition({ lat: position.lat, lng: position.lng });
+                userCircle.setCenter({ lat: position.lat, lng: position.lng });
+            }
+        }
+
         function showInfoBox(location) {
             document.getElementById("storeName").innerText = location.title;
             document.getElementById("storeAddress").innerText = location.address;
@@ -179,6 +260,12 @@
             document.getElementById("infoBox").style.display = "block";
             document.getElementById("youtubeEmbed").style.display = "none"; // 초기에는 유튜브 숨김
         }
+
+        document.getElementById("locationButton").addEventListener("click", function() {
+            isTracking = true;
+            firstClick = true;
+            trackUserLocation();
+        });
     </script>
 </body>
 </html>
