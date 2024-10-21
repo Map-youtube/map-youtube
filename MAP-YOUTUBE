@@ -232,11 +232,16 @@
             document.getElementById("youtubeEmbed").style.display = 'block';
         }
 
-        document.getElementById("locationButton").addEventListener("click", function() {
-            isTracking = true;
-            firstClick = true;
-            trackUserLocation();
-        });
+document.getElementById("locationButton").addEventListener("click", function() {
+    if (isTracking) {
+        // 이미 위치 추적 중이라면, 두 번째 클릭 시 zoomLevel을 고정합니다.
+        return;
+    }
+    isTracking = true;
+    firstClick = true;
+    trackUserLocation();
+});
+
     </script>
 </body>
 </html>
