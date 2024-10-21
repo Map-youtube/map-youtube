@@ -74,10 +74,15 @@ function initMap() {
 
     // 지도의 기본 마커 클릭 시 해당 위치로 지도 중심 이동
     map.addListener('click', (event) => {
-        if (event.placeId) { 
-            // 클릭한 곳이 POI 마커일 때만 실행
-            event.stop(); // 기본 동작(예: 장소 정보 표시) 막기
-            map.panTo(event.latLng); // 클릭한 POI의 위치로 지도 중심 이동
+    // 현재 열려 있는 infowindow가 있으면 닫기
+    if (infowindow) {
+        infowindow.close();
+    }
+
+    // 클릭한 곳이 POI 마커일 때만 실행
+    if (event.placeId) { 
+        event.stop(); // 기본 동작(예: 장소 정보 표시) 막기
+        map.panTo(event.latLng); // 클릭한 POI의 위치로 지도 중심 이동
         }
     });
 
