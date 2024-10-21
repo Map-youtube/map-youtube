@@ -66,32 +66,43 @@
     <script>
         let map;
 
-        function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 12.7882166, lng: 101.135258 },
-                zoom: 10,
-            });
+function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 12.7882166, lng: 101.135258 },
+        zoom: 10,
+    });
 
-            const locations = [
-                { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227 }
-            ];
+    // 지도의 기본 마커 클릭 시 해당 위치로 지도 중심 이동
+    map.addListener('click', (event) => {
+        if (event.placeId) { 
+            // 클릭한 곳이 POI 마커일 때만 실행
+            event.stop(); // 기본 동작(예: 장소 정보 표시) 막기
+            map.panTo(event.latLng); // 클릭한 POI의 위치로 지도 중심 이동
+        }
+    });
 
-            locations.forEach(location => {
-                const marker = new google.maps.Marker({
-                    position: { lat: location.lat, lng: location.lng },
-                    map: null,
-                    title: location.title,
-                });
+    const locations = [
+        { title: "맛잇다식당", lat: 12.7874027, lng: 101.135227 }
+    ];
 
-                marker.addListener("click", () => {
-                    map.panTo(marker.getPosition());
-                });
+    locations.forEach(location => {
+        const marker = new google.maps.Marker({
+            position: { lat: location.lat, lng: location.lng },
+            map: null, // 초기에는 맵에 표시하지 않음
+            title: location.title,
+        });
 
-                map.addListener('zoom_changed', () => {
-                    const zoom = map.getZoom();
-                    marker.setMap(zoom >= 16 ? map : null);
-                });
-            });
+        marker.addListener("click", () => {
+            map.panTo(marker.getPosition());
+            map.setZoom(16); // 마커 클릭 시 확대
+        });
+
+        // 줌 레벨에 따라 마커 표시
+        map.addListener('zoom_changed', () => {
+            const zoom = map.getZoom();
+            marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
+        });
+    });
 
             initAutocomplete();
         }
