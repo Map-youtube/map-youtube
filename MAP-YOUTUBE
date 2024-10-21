@@ -19,55 +19,18 @@
             padding: 10px;
             display: block; /* 기본적으로 모바일에서는 표시 */
         }
-        .info-box {
-            position: absolute;
-            bottom: 10px; /* 기본 위치 */
-            left: 10px;
-            width: calc(100% - 20px); /* 모바일 환경에서 기본 너비 */
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: none; /* 그림자 효과 제거 */
-            display: none; /* 초기에는 숨김 */
-        }
-        #youtubeEmbed {
-            width: 100%;
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 비율을 유지하기 위한 비율 */
-            height: 0;
-            overflow: hidden;
-        }
-        #youtubeEmbed iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; /* 전체 화면이 보이도록 설정 */
-        }
 
         /* 모바일 환경 스타일 */
         @media (max-width: 768px) {
             #map {
                 height: 300px; /* 모바일에서 지도 높이 조정 */
             }
-            .info-box {
-                bottom: 5px; /* 모바일에서 안내창 위치 조정 */
-            }
         }
         /* PC 환경에서 화면 비율 조정 */
         @media (min-width: 769px) {
             #map {
-                width: 60%; /* PC 환경에서 지도는 60% */
+                width: 100%; /* 지도는 100% */
                 height: 600px; /* 고정 높이 */
-                float: left; /* 지도 왼쪽 배치 */
-            }
-            .info-box {
-                position: static; /* 절대 위치 해제 */
-                width: 40%; /* 안내창을 40%로 설정 */
-                float: left; /* 안내창을 지도 오른쪽에 배치 */
-                height: 600px; /* 지도와 같은 높이로 맞춤 */
-                overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
-                box-sizing: border-box; /* 패딩과 폭을 제대로 계산 */
             }
             #locationButton {
                 display: none; /* PC에서는 위치 버튼 숨김 */
@@ -94,15 +57,6 @@
     <input id="searchInput" type="text" placeholder="검색어 입력">
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
-    <div class="info-box" id="infoBox">
-        <h3 id="storeName"></h3>
-        <p>가게주소 : <span id="storeAddress"></span></p>
-        <p>영업시간 : <span id="storeHours"></span></p>
-        <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">링크 보기</a></p>
-        <div id="youtubeEmbed" style="display:none;">
-            <iframe src="" frameborder="0" allowfullscreen></iframe>
-        </div>
-    </div>
 
     <script>
         let map;
@@ -130,7 +84,7 @@
                 });
 
                 marker.addListener("click", () => {
-                    showInfoBox(location); // 마커 클릭 시 해당 위치의 정보 출력
+                    // 클릭 시 안내창을 표시하는 기능 제거
                     map.panTo(marker.getPosition());
                 });
                 
@@ -160,31 +114,6 @@
                 } else {
                     map.setCenter(place.geometry.location);
                     map.setZoom(16);
-                }
-
-                // 검색 결과에 따른 정보창 출력
-                showInfoBox({
-                    title: place.name,
-                    address: place.formatted_address || "정보 없음",
-                    hours: place.opening_hours ? (place.opening_hours.open_now ? "영업 중" : "영업 종료") : "영업시간 정보 없음",
-                    videoId: "" // 검색 결과에 대한 YouTube 영상은 없을 수 있음
-                });
-            });
-
-            document.getElementById("youtubeLink").addEventListener("click", function(event) {
-                event.preventDefault(); // 기본 링크 동작 방지
-                const videoId = locations[0].videoId;
-                const videoLink = `https://www.youtube.com/embed/${videoId}`;
-                
-                if (window.innerWidth <= 768) {
-                    // 모바일 환경에서 자동 스크롤 및 영상 표시
-                    document.getElementById("youtubeEmbed").style.display = 'block';
-                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
-                    window.scrollTo(0, document.body.scrollHeight); // 페이지 아래로 스크롤
-                } else {
-                    // PC 환경에서 영상 표시
-                    document.getElementById("youtubeEmbed").style.display = 'block';
-                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
                 }
             });
         }
@@ -237,51 +166,22 @@
                     }
                 });
                 userCircle = new google.maps.Circle({
-                    center: position,
-                    radius: 50, // 50m 반경
-                    fillColor: "#cce6ff",
-                    fillOpacity: 0.35,
-                    strokeColor: "#3366ff",
+                    center: { lat: position.lat, lng: position.lng },
+                    radius: 30,
+                    strokeColor: "#4A90E2",
                     strokeOpacity: 0.8,
                     strokeWeight: 2,
+                    fillColor: "#4A90E2",
+                    fillOpacity: 0.35,
                     map: map
                 });
             } else {
-                userMarker.setPosition(position);
-                userMarker.setIcon({
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                    scale: 5,
-                    rotation: position.heading,
-                    fillColor: "blue",
-                    fillOpacity: 0.8,
-                    strokeColor: "blue",
-                    strokeWeight: 2
-                });
-                userCircle.setCenter(position);
+                userMarker.setPosition({ lat: position.lat, lng: position.lng });
+                userCircle.setCenter({ lat: position.lat, lng: position.lng });
             }
         }
 
-        function showInfoBox(location) {
-            document.getElementById("storeName").textContent = location.title;
-            document.getElementById("storeAddress").textContent = location.address;
-            document.getElementById("storeHours").textContent = location.hours;
-
-            const youtubeEmbed = document.getElementById("youtubeEmbed");
-            const youtubeLink = document.getElementById("youtubeLink");
-
-            if (location.videoId) {
-                const videoLink = `https://www.youtube.com/embed/${location.videoId}`;
-                youtubeLink.href = videoLink;
-                youtubeEmbed.style.display = 'block';
-                document.querySelector("#youtubeEmbed iframe").src = videoLink;
-            } else {
-                youtubeEmbed.style.display = 'none';
-            }
-
-            document.getElementById("infoBox").style.display = 'block';
-        }
-
-        document.getElementById("locationButton").addEventListener("click", () => {
+        document.getElementById("locationButton").addEventListener("click", function() {
             isTracking = true;
             firstClick = true;
             trackUserLocation();
