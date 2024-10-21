@@ -41,11 +41,24 @@
                 showInfoWindow(place);
             });
 
-            // 지도 클릭 시, 현재 열려있는 정보창 닫기
-            map.addListener('click', function() {
-                if (currentInfoWindow) {
-                    currentInfoWindow.close();
-                    currentInfoWindow = null;
+            // 지도 클릭 시, 해당 위치 주변의 장소 검색
+            map.addListener('click', function(event) {
+                const location = event.latLng;
+                searchNearbyPlaces(location);
+            });
+        }
+
+        function searchNearbyPlaces(location) {
+            const request = {
+                location: location,
+                radius: 1000,
+                type: ['tourist_attraction', 'restaurant', 'cafe']
+            };
+
+            service.nearbySearch(request, function(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                    // 첫 번째 결과를 사용하여 정보창을 표시합니다.
+                    showInfoWindow(results[0]);
                 }
             });
         }
