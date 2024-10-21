@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>유튜브와 구글맵 결합 웹사이트</title>
+    <title>구글맵 클릭 위치 정보</title>
     <style>
         /* 지도 스타일 */
         #map {
@@ -15,6 +15,7 @@
     <script>
         var markers = []; // 마커 배열
         var infoWindows = []; // 정보창 배열
+        var service; // Places 서비스
 
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
@@ -22,20 +23,23 @@
                 zoom: 10
             });
 
+            service = new google.maps.places.PlacesService(map);
+
             // 검색창
             var input = document.getElementById('search-input');
             var searchBox = new google.maps.places.SearchBox(input);
 
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-            // 장소 상세 정보를 가져오기 위한 서비스
-            var service = new google.maps.places.PlacesService(map);
-
             // 지도 외부를 클릭하면 모든 정보창 닫기
-            map.addListener('click', function() {
+            map.addListener('click', function(event) {
+                // 이전 정보창 닫기
                 infoWindows.forEach(function(infowindow) {
                     infowindow.close();
                 });
+
+                // 클릭한 위치 주변의 장소 검색
+                searchNearbyPlaces(event.latLng, map);
             });
 
             searchBox.addListener('places_changed', function() {
@@ -49,8 +53,8 @@
                 markers.forEach(function(marker) {
                     marker.setMap(null);
                 });
-                markers = []; // 마커 배열 초기화
-                infoWindows = []; // 정보창 배열 초기화
+                markers = [];
+                infoWindows = [];
 
                 var bounds = new google.maps.LatLngBounds();
                 places.forEach(function(place) {
@@ -65,7 +69,7 @@
                         position: place.geometry.location
                     });
 
-                    markers.push(marker); // 마커 배열에 저장
+                    markers.push(marker);
 
                     // 장소 세부 정보 요청
                     service.getDetails({ placeId: place.place_id }, function(details, status) {
@@ -112,10 +116,56 @@
                 map.fitBounds(bounds);
             });
         }
+
+        // 클릭한 위치 주변의 장소 검색
+        function searchNearbyPlaces(latLng, map) {
+            var request = {
+                location: latLng,
+                radius: '500', // 500m 반경 내 검색
+                type: ['store'] // 장소 유형 (예: 음식점, 상점 등)
+            };
+
+            service.nearbySearch(request, function(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    results.forEach(function(place) {
+                        // 마커 생성
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: place.geometry.location
+                        });
+
+                        markers.push(marker); // 마커 배열에 저장
+
+                        // 정보창 생성
+                        var content = `
+                            <div><strong>${place.name}</strong></div>
+                            <div><strong>주소:</strong> ${place.vicinity || '정보 없음'}</div>
+                            <div><strong>평점:</strong> ${place.rating || '정보 없음'} / 5</div>
+                        `;
+
+                        var infowindow = new google.maps.InfoWindow({
+                            content: content
+                        });
+
+                        infoWindows.push(infowindow); // 정보창 배열에 저장
+
+                        // 마커 클릭 시 정보창 열기
+                        marker.addListener('click', function() {
+                            // 모든 정보창 닫기
+                            infoWindows.forEach(function(iw) {
+                                iw.close();
+                            });
+                            // 클릭한 마커의 정보창 열기
+                            infowindow.open(map, marker);
+                        });
+                    });
+                }
+            });
+        }
     </script>
 </head>
 <body onload="initMap()">
-    <h1>유튜브와 구글맵 결합 웹사이트</h1>
+    <h1>구글맵 클릭 위치 정보</h1>
 
     <!-- 검색창 -->
     <input id="search-input" class="controls" type="text" placeholder="위치 검색">
@@ -123,8 +173,5 @@
     <!-- 구글맵 -->
     <div id="map"></div>
 
-    <script>
-        // 추가적인 마커 설정 및 기능
-    </script>
 </body>
 </html>
