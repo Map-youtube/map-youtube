@@ -155,13 +155,17 @@ function trackUserLocation() {
             };
             updateUserMarker(pos);
 
-            if (isTracking && firstClick) {
-                map.setCenter(pos); // 현재 위치로 지도 중심 이동
-                map.setZoom(16); // 첫 클릭에서만 줌 변경
-                firstClick = false; // 첫 클릭 후 false로 변경
-            } else if (isTracking && !firstClick) {
-                map.setCenter(pos); // 두 번째 이후로는 줌 변경 없이 지도 중심만 이동
+            if (isTracking) { // "현재 위치 보기" 버튼을 눌렀을 때만 지도 중심 이동
+                if (firstClick) {
+                    map.setCenter(pos); // 첫 클릭 시 현재 위치로 지도 중심 이동
+                    map.setZoom(16); // 줌 레벨 변경
+                    firstClick = false; // 첫 클릭 이후 줌 변경 없음
+                } else {
+                    map.setCenter(pos); // 줌 변경 없이 지도 중심만 현재 위치로 이동
+                }
+                isTracking = false; // 자동으로 다시 이동하지 않도록 isTracking false 설정
             }
+
         }, () => {
             alert("위치 정보를 가져올 수 없습니다.");
         }, {
@@ -173,8 +177,6 @@ function trackUserLocation() {
         alert("브라우저가 위치 서비스를 지원하지 않습니다.");
     }
 }
-
-
 
         function updateUserMarker(position) {
             if (!userMarker) {
