@@ -66,8 +66,6 @@
     <script>
         let map;
 
-let infowindow; // 전역 변수로 infowindow 추가
-
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 12.7882166, lng: 101.135258 },
@@ -99,23 +97,6 @@ function initMap() {
             map.setZoom(16); // 마커 클릭 시 확대
         });
 
-    // 각 마커에 클릭 이벤트 추가
-
-        marker.addListener("click", () => {
-            // 기존의 안내창이 열려있다면 닫기
-            if (infowindow) {
-                infowindow.close();
-            }
-            map.panTo(marker.getPosition());
-            map.setZoom(16); // 마커 클릭 시 확대
-
-            // 새로운 안내창 생성 및 열기
-            infowindow = new google.maps.InfoWindow({
-                content: `<div><strong>${marker.title}</strong></div>` // 마커 제목만 표시
-            });
-            infowindow.open(map, marker);
-        });
-
         // 줌 레벨에 따라 마커 표시
         map.addListener('zoom_changed', () => {
             const zoom = map.getZoom();
@@ -126,43 +107,29 @@ function initMap() {
             initAutocomplete();
         }
 
-function initAutocomplete() {
-    const input = document.getElementById('pac-input');
-    const autocomplete = new google.maps.places.Autocomplete(input);
+        function initAutocomplete() {
+            const input = document.getElementById('pac-input');
+            const autocomplete = new google.maps.places.Autocomplete(input);
 
-    autocomplete.bindTo('bounds', map);
+            autocomplete.bindTo('bounds', map);
 
-    autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
 
-        if (!place.geometry || !place.geometry.location) {
-            alert("검색된 장소의 위치를 찾을 수 없습니다.");
-            return;
+                if (!place.geometry || !place.geometry.location) {
+                    alert("검색된 장소의 위치를 찾을 수 없습니다.");
+                    return;
+                }
+
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+
+                new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location
+                });
+            });
         }
-
-        // 기존의 안내창이 열려있다면 닫기
-        if (infowindow) {
-            infowindow.close();
-        }
-
-        map.setCenter(place.geometry.location);
-        map.setZoom(15);
-
-        // 검색된 장소에 마커 추가
-        const marker = new google.maps.Marker({
-            map: map,
-            position: place.geometry.location
-        });
-
-        // 말풍선(정보 창) 추가
-        infowindow = new google.maps.InfoWindow({
-            content: `<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`
-        });
-
-        // 말풍선을 마커에 연결하여 표시
-        infowindow.open(map, marker);
-    });
-}
 
         let userMarker, userCircle, watchId, isTracking = false, firstClick = true;
 
