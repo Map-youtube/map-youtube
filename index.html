@@ -14,6 +14,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
     <script>
         var markers = []; // 마커 배열
+        var infoWindows = []; // 정보창 배열
         
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
@@ -27,6 +28,13 @@
 
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
+            // 지도 외부를 클릭하면 모든 정보창 닫기
+            map.addListener('click', function() {
+                infoWindows.forEach(function(infowindow) {
+                    infowindow.close();
+                });
+            });
+
             searchBox.addListener('places_changed', function() {
                 var places = searchBox.getPlaces();
 
@@ -34,11 +42,12 @@
                     return;
                 }
 
-                // 이전 마커 제거
+                // 이전 마커와 정보창 제거
                 markers.forEach(function(marker) {
                     marker.setMap(null);
                 });
-                markers = []; // 배열 초기화
+                markers = []; // 마커 배열 초기화
+                infoWindows = []; // 정보창 배열 초기화
 
                 var bounds = new google.maps.LatLngBounds();
                 places.forEach(function(place) {
@@ -60,17 +69,18 @@
                         content: `<div><strong>${place.name}</strong><br>${place.formatted_address}</div>`
                     });
 
+                    infoWindows.push(infowindow); // 정보창 배열에 저장
+
                     // 마커 클릭 시 정보창 열기
                     infowindow.open(map, marker);
 
-                    // 클릭 시 정보창을 마커에 표시
                     marker.addListener('click', function() {
+                        // 모든 정보창 닫기
+                        infoWindows.forEach(function(iw) {
+                            iw.close();
+                        });
+                        // 클릭한 마커의 정보창 열기
                         infowindow.open(map, marker);
-                    });
-
-                    // 정보창 바깥 클릭 시 닫기
-                    map.addListener('click', function() {
-                        infowindow.close();
                     });
 
                     // 경계 확장
