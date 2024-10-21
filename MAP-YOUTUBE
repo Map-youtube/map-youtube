@@ -12,7 +12,7 @@
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places"></script>
     <script>
-        let map, service;
+        let map, service, autocomplete;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -22,6 +22,23 @@
 
             service = new google.maps.places.PlacesService(map);
 
+            // 자동완성 기능 추가
+            const input = document.getElementById('search-input');
+            autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.bindTo('bounds', map);
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry) {
+                    console.log("No details available for input: '" + place.name + "'");
+                    return;
+                }
+
+                map.setCenter(place.geometry.location);
+                map.setZoom(15); // 장소를 중심으로 확대
+            });
+
             // 지도 클릭 시, 해당 위치 주변의 장소 검색
             map.addListener('click', function(event) {
                 const location = event.latLng;
@@ -29,25 +46,17 @@
             });
         }
 
+        function searchNearbyPlaces(location) {
+            const request = {
+                location: location,
+                radius: 1000,
+                type: ['tourist_attraction', 'restaurant', 'cafe']
+            };
 
-        // 장소에 마커 및 정보창 생성
-        function createMarker(place) {
-            const marker = new google.maps.Marker({
-                map: map,
-                position: place.geometry.location
-            });
-
-            const infowindow = new google.maps.InfoWindow({
-                content: `
-                    <div><strong>${place.name}</strong></div>
-                    <div>${place.vicinity}</div>
-                    <div><strong>평점:</strong> ${place.rating || '정보 없음'} / 5</div>
-                    <div><iframe width="300" height="200" src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID" frameborder="0" allowfullscreen></iframe></div>
-                `
-            });
-
-            marker.addListener('click', function() {
-                infowindow.open(map, marker);
+            service.nearbySearch(request, function(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    results.forEach(place => console.log(place)); // 결과를 콘솔에 출력
+                }
             });
         }
     </script>
