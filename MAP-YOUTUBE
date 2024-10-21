@@ -29,22 +29,6 @@
             });
         }
 
-        // 클릭한 위치 주변의 장소 검색 및 마커 표시
-        function searchNearbyPlaces(location) {
-            const request = {
-                location: location,
-                radius: '500', // 반경 500m
-                type: ['restaurant', 'tourist_attraction']
-            };
-
-            service.nearbySearch(request, function(results, status) {
-                if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    results.forEach(function(place) {
-                        createMarker(place);
-                    });
-                }
-            });
-        }
 
         // 장소에 마커 및 정보창 생성
         function createMarker(place) {
