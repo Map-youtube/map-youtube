@@ -29,9 +29,6 @@
 </head>
 <body>
 
-    <!-- Iframe으로 지도 추가 -->
-    <iframe src="https://api.mapbox.com/styles/v1/shootingstar2/cm2jx8u1x019u01peevc0bpwj.html?title=false&access_token=pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ&zoomwheel=false#15.63/12.950357/100.891449" title="Untitled"></iframe>
-
     <!-- Mapbox GL JS 지도 -->
     <div id="map"></div>
 
@@ -42,7 +39,7 @@
         // 지도를 초기화
         const map = new mapboxgl.Map({
             container: 'map', // 지도 div의 ID
-            style: 'mapbox://styles/mapbox/streets-v11', // 스타일 URL
+            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj', // 스타일 URL
             center: [100.523186, 13.736717], // 시작 위치 [경도, 위도]
             zoom: 10 // 시작 줌 레벨
         });
