@@ -29,20 +29,20 @@
 
     <script>
         // Mapbox 액세스 토큰 설정
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqeXU1amswNThlMmlxdHFjbmI3OXJ6In0.NQelISC6cLapU4jXOj1GnQ';
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ';
 
-        // 지도를 초기화
+        // 지도를 초기화 (방콕 중심)
         const map = new mapboxgl.Map({
             container: 'map', // 지도 div의 ID
-            style: 'mapbox://styles/mapbox/streets-v11', // 스타일 URL
-            center: [100.523186, 13.736717], // 시작 위치 [경도, 위도]
+            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj', // 스타일 URL
+            center: [100.523186, 13.736717], // 방콕의 경도, 위도
             zoom: 10 // 시작 줌 레벨
         });
 
         // 확대/축소 및 회전 컨트롤 추가
         map.addControl(new mapboxgl.NavigationControl());
 
-        // 상점 위치에 마커 추가
+        // 상점 위치에 마커 추가 (방콕 중심 예시)
         const marker = new mapboxgl.Marker()
             .setLngLat([100.523186, 13.736717]) // 상점의 경도, 위도
             .setPopup(new mapboxgl.Popup({ offset: 25 }) // 팝업 추가
