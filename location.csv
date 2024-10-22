@@ -1,5 +1,5 @@
-﻿name,latitude,longitude,description
-A,13.7563,100.5018,ADF
-B,13.7565,100.502,ADF
-C,13.757,100.503,FDS
-Rimnam BBQ Buffet Pin Klao,13.7616109,100.4905682,"Tuesday, 3:30–11:30 PM"
+﻿name,description,latitude,longitude,altitude
+A,ADF,13.7563,100.5018,
+B,ADF,13.7565,100.502,
+C,FDS,13.757,100.503,
+Rimnam BBQ Buffet Pin Klao,"Tuesday, 3:30–11:30 PM",13.7616109,100.4905682,754
