@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>방콕 지도 웹사이트</title>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css' rel='stylesheet' />
+    <title>방콕 지도</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,44 +12,30 @@
             padding: 0;
         }
         #map {
-            width: 100%;
-            height: 400px; /* 높이를 설정해야 지도가 보입니다. */
-        }
-        #info {
-            padding: 20px;
-            background-color: #f9f9f9;
-            margin: 20px;
-            border: 1px solid #ddd;
+            width: 100%; /* 100% 너비 */
+            height: 400px; /* 높이 설정 */
         }
     </style>
 </head>
 <body>
 
-    <h1>방콕 여행지 및 식당 안내</h1>
+    <h1>방콕 여행지 안내</h1>
+    <div id='map'></div>
 
-    <div id="map"></div>
-    
-    <div id="info">
-        <h2>위치 정보</h2>
-        <p>여기에 위치에 대한 소개/정보를 입력하세요.</p>
-        <h3>관련 유튜브 영상</h3>
-        <iframe width="100%" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube Video" frameborder="0" allowfullscreen></iframe>
-    </div>
-
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <script>
-        // Mapbox access token
+        // 자신의 Mapbox 액세스 토큰을 여기에 입력하세요.
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ';
 
-        // Initialize the map
-        const map = new mapboxgl.Map({
-            container: 'map', // container ID
-            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj', // style URL
-            center: [100.891449, 12.950357], // starting position [lng, lat]
-            zoom: 15 // starting zoom
+        // 지도를 초기화합니다.
+        var map = new mapboxgl.Map({
+            container: 'map', // 지도가 표시될 div의 ID
+            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj', // 사용하고자 하는 스타일
+            center: [100.891449, 12.950357], // 방콕의 경도와 위도
+            zoom: 15 // 기본 줌 레벨
         });
 
-        // Add navigation control (zoom buttons)
+        // 지도에 네비게이션 컨트롤 추가
         map.addControl(new mapboxgl.NavigationControl());
     </script>
 
