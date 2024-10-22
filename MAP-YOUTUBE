@@ -29,7 +29,7 @@
 
     // CSV 파일을 불러오기 위한 함수
     function loadCSVData() {
-        Papa.parse('https://github.com/Map-youtube/map-youtube/blob/main/location.csv', {
+        Papa.parse('https://raw.githubusercontent.com/Map-youtube/map-youtube/refs/heads/main/location.csv', {
             download: true,
             header: true,
             complete: function(results) {
