@@ -1,93 +1,53 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여행지 정보 및 유튜브 연동</title>
+    <meta charset="utf-8" />
+    <title>My Custom Map with Store Info</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
     <style>
-        #map {
-            width: 100%;
-            height: 600px;
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .popup-content {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .popup-content a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        .popup-content a:hover {
+            text-decoration: underline;
         }
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places"></script>
-    <script>
-        let map, service, autocomplete, currentInfoWindow;
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 37.5665, lng: 126.9780 }, // 서울 좌표
-                zoom: 10
-            });
-
-            service = new google.maps.places.PlacesService(map);
-
-            // 자동완성 기능 추가
-            const input = document.getElementById('search-input');
-            autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-
-            autocomplete.addListener('place_changed', function() {
-                const place = autocomplete.getPlace();
-
-                if (!place.geometry) {
-                    console.log("No details available for input: '" + place.name + "'");
-                    return;
-                }
-
-                map.setCenter(place.geometry.location);
-                map.setZoom(15); // 장소를 중심으로 확대
-
-                showInfoWindow(place);
-            });
-
-            // 지도 클릭 시, 해당 위치 주변의 장소 검색
-            map.addListener('click', function(event) {
-                const location = event.latLng;
-                searchNearbyPlaces(location);
-            });
-        }
-
-        function searchNearbyPlaces(location) {
-            const request = {
-                location: location,
-                radius: 1000,
-                type: ['tourist_attraction', 'restaurant', 'cafe']
-            };
-
-            service.nearbySearch(request, function(results, status) {
-                if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-                    // 첫 번째 결과를 사용하여 정보창을 표시합니다.
-                    showInfoWindow(results[0]);
-                }
-            });
-        }
-
-        function showInfoWindow(place) {
-            if (currentInfoWindow) {
-                currentInfoWindow.close();
-            }
-
-            const infowindow = new google.maps.InfoWindow({
-                content: `
-                    <div><strong>${place.name}</strong></div>
-                    <div>${place.vicinity}</div>
-                    <div><strong>평점:</strong> ${place.rating || '정보 없음'} / 5</div>
-                    <div><iframe width="300" height="200" src="https://www.youtube.com/embed/YOUTUBE_VIDEO_ID" frameborder="0" allowfullscreen></iframe></div>
-                `,
-                position: place.geometry.location
-            });
-
-            infowindow.open(map);
-
-            // 현재 열린 정보창 추적
-            currentInfoWindow = infowindow;
-        }
-    </script>
 </head>
-<body onload="initMap()">
-    <h1>여행지 정보 및 유튜브 연동</h1>
-    <input id="search-input" class="controls" type="text" placeholder="여행지 검색">
-    <div id="map"></div>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // Add your Mapbox access token
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqd3Y2dTQwYTAwMmtzY2VscGlxbWNvIn0.SMu_FNq9HI_hF1bGaZijjQ';
+
+    // Initialize the map
+    const map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/mapbox/streets-v11', // style URL
+        center: [100.523186, 13.736717], // starting position [lng, lat]
+        zoom: 10 // starting zoom
+    });
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Add a marker for a store location
+    const marker = new mapboxgl.Marker()
+        .setLngLat([100.523186, 13.736717]) // longitude, latitude of the store
+        .setPopup(new mapboxgl.Popup({ offset: 25 }) // Add a popup
+            .setHTML('<div class="popup-content"><h3>Store Name</h3><p>Store description here. <br> <a href="https://youtu.be/your-video-id" target="_blank">Watch on YouTube</a></p></div>'))
+        .addTo(map);
+</script>
+
 </body>
 </html>
