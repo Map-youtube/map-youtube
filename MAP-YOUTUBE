@@ -32,31 +32,5 @@
     <!-- Iframe으로 지도 추가 -->
 <iframe width='100%' height='400px' src="https://api.mapbox.com/styles/v1/shootingstar2/cm2jx8u1x019u01peevc0bpwj.html?title=false&access_token=pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqeXU1amswNThlMmlxdHFjbmI3OXJ6In0.NQelISC6cLapU4jXOj1GnQ&zoomwheel=false#8.1/12.559/101.193" title="Untitled" style="border:none;"></iframe>
 
-    <!-- Mapbox GL JS 지도 -->
-    <div id="map"></div>
-
-    <script>
-        // Mapbox 액세스 토큰 설정
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqd3Y2dTQwYTAwMmtzY2VscGlxbWNvIn0.SMu_FNq9HI_hF1bGaZijjQ';
-
-        // 지도를 초기화
-        const map = new mapboxgl.Map({
-            container: 'map', // 지도 div의 ID
-            style: 'mapbox://styles/mapbox/streets-v11', // 스타일 URL
-            center: [100.523186, 13.736717], // 시작 위치 [경도, 위도]
-            zoom: 10 // 시작 줌 레벨
-        });
-
-        // 확대/축소 및 회전 컨트롤 추가
-        map.addControl(new mapboxgl.NavigationControl());
-
-        // 상점 위치에 마커 추가
-        const marker = new mapboxgl.Marker()
-            .setLngLat([100.523186, 13.736717]) // 상점의 경도, 위도
-            .setPopup(new mapboxgl.Popup({ offset: 25 }) // 팝업 추가
-                .setHTML('<div class="popup-content"><h3>상점 이름</h3><p>상점 설명을 여기에 입력하세요. <br> <a href="https://youtu.be/your-video-id" target="_blank">유튜브에서 보기</a></p></div>'))
-            .addTo(map);
-    </script>
-
 </body>
 </html>
