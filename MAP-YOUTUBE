@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>방콕 지도 웹사이트</title>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css' rel='stylesheet' />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +14,6 @@
         #map {
             width: 100%;
             height: 400px;
-            border: none;
         }
         #info {
             padding: 20px;
@@ -26,8 +26,8 @@
 <body>
 
     <h1>방콕 여행지 및 식당 안내</h1>
-    
-    <iframe id="map" src="https://api.mapbox.com/styles/v1/shootingstar2/cm2jx8u1x019u01peevc0bpwj.html?title=false&access_token=pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ&zoomwheel=false#15.63/12.950357/100.891449" title="방콕 지도"></iframe>
+
+    <div id="map"></div>
     
     <div id="info">
         <h2>위치 정보</h2>
@@ -35,6 +35,23 @@
         <h3>관련 유튜브 영상</h3>
         <iframe width="100%" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="YouTube Video" frameborder="0" allowfullscreen></iframe>
     </div>
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js'></script>
+    <script>
+        // Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ';
+
+        // Initialize the map
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj', // style URL
+            center: [100.891449, 12.950357], // starting position [lng, lat]
+            zoom: 15 // starting zoom
+        });
+
+        // Add navigation control (zoom buttons)
+        map.addControl(new mapboxgl.NavigationControl());
+    </script>
 
 </body>
 </html>
