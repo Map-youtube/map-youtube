@@ -4,32 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나만의 지도</title>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
-        #map {
+        .map-container {
             width: 100%;
             height: 400px;
+            border: none;
         }
     </style>
 </head>
 <body>
     <h1>여행지 지도</h1>
-    <div id='map'></div>
-    
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ';
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/shootingstar2/cm2jx8u1x019u01peevc0bpwj',
-            center: [100.891449, 12.950357], // 경도, 위도
-            zoom: 15 // 초기 줌 레벨
-        });
-    </script>
+    <iframe class="map-container" src="https://api.mapbox.com/styles/v1/shootingstar2/cm2jx8u1x019u01peevc0bpwj.html?title=false&access_token=pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ&zoomwheel=false#15.63/12.950357/100.891449" title="여행지 지도"></iframe>
 </body>
 </html>
