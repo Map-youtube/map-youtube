@@ -28,7 +28,7 @@
 
 <script>
     // Add your Mapbox access token
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqd3Y2dTQwYTAwMmtzY2VscGlxbWNvIn0.SMu_FNq9HI_hF1bGaZijjQ';
+    mapboxgl.accessToken = pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqdzlkbW4wYTg2MmtwcGk2MHRieW9wIn0.4GfHqK7FbDBNrrfQZtIwDQ;
 
     // Initialize the map
     const map = new mapboxgl.Map({
