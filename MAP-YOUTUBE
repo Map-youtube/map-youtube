@@ -51,9 +51,9 @@
                     markerElement.className = 'marker'; // 마커에 클래스 추가
 
                     const marker = new mapboxgl.Marker(markerElement)
-                        .setLngLat([location.longitude, location.latitude])
+                        .setLngLat([location.longitude, location.latitude]) // 경도, 위도 설정
                         .setPopup(new mapboxgl.Popup({ offset: 25 }) // 클릭 시 표시할 팝업
-                            .setHTML(`<h3>${location.name}</h3><p>${location.description}</p>`))
+                            .setHTML(`<h3>${location.name}</h3><p>${location.description}</p><p>Altitude: ${location.altitude}m</p>`)) // 고도 정보 추가
                         .addTo(map);
 
                     // 마커에 마우스 이벤트 추가
