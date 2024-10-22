@@ -29,7 +29,7 @@
 
     <script>
         // Mapbox 액세스 토큰 설정
-        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqd3Y2dTQwYTAwMmtzY2VscGlxbWNvIn0.SMu_FNq9HI_hF1bGaZijjQ';
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqeXU1amswNThlMmlxdHFjbmI3OXJ6In0.NQelISC6cLapU4jXOj1GnQ';
 
         // 지도를 초기화
         const map = new mapboxgl.Map({
