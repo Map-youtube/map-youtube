@@ -31,7 +31,24 @@
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
-        zoom: 12
+        zoom: 12,
+        terrain: { // 지형 데이터를 활성화
+            source: 'mapbox-dem',
+            exaggeration: 1.5
+        }
+    });
+
+    // Mapbox DEM 소스 추가
+    map.on('load', () => {
+        map.addSource('mapbox-dem', {
+            "type": 'raster-dem',
+            "url": 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            "tileSize": 512,
+            "maxzoom": 14
+        });
+
+        // 3D 지형 스타일 적용
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
     });
 
     // 지도의 줌과 스크롤 제어 추가
@@ -51,9 +68,10 @@
                     markerElement.className = 'marker'; // 마커에 클래스 추가
 
                     const marker = new mapboxgl.Marker(markerElement)
-                        .setLngLat([location.longitude, location.latitude]) // 경도, 위도 설정
+                        // 고도(altitude)를 포함한 좌표로 마커 위치 설정
+                        .setLngLat([location.longitude, location.latitude, location.altitude])
                         .setPopup(new mapboxgl.Popup({ offset: 25 }) // 클릭 시 표시할 팝업
-                            .setHTML(`<h3>${location.name}</h3><p>${location.description}</p><p>Altitude: ${location.altitude}m</p>`)) // 고도 정보 추가
+                            .setHTML(`<h3>${location.name}</h3><p>${location.description}</p>`))
                         .addTo(map);
 
                     // 마커에 마우스 이벤트 추가
