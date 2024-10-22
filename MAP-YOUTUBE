@@ -14,7 +14,7 @@ body { margin: 0; padding: 0; }
 <body>
 <div id="map"></div>
 <script>
-	mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJqeXU1amswNThlMmlxdHFjbmI3OXJ6In0.NQelISC6cLapU4jXOj1GnQ';
+	mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA';
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
