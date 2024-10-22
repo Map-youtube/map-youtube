@@ -10,7 +10,17 @@
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        .marker:hover { cursor: pointer; } /* 마우스 오버 시 커서 변경 */
+
+        /* 마커 스타일 */
+        .marker {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+        }
+
+        /* 마커에 마우스를 올렸을 때 커서 변경 */
+        .marker:hover { cursor: pointer; }
     </style>
 </head>
 <body>
