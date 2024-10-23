@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Guides111</title>
+    <title>Guides2</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
@@ -28,7 +28,10 @@
 <body>
 
 <div id="search-container">
-    <mapbox-search-box access-token="pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA" proximity="0,0"></mapbox-search-box>
+    <mapbox-search-box 
+        access-token="pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA" 
+        proximity="0,0">
+    </mapbox-search-box>
 </div>
 <div id="map"></div>
 
@@ -104,21 +107,22 @@
     });
 
     // Search Box integration
-    const script = document.getElementById('search-js');
-    script.onload = function () {
-        const searchBox = document.querySelector('mapbox-search-box');
-        searchBox.bindMap(map);  // Bind the search box to the map for location zoom
-
-        searchBox.options = {
-            language: 'ko', // 검색어 자동완성에 대한 언어 설정
-            country: 'KR'   // 특정 국가로 결과를 제한
-        };
-
-        searchBox.addEventListener('retrieve', (e) => {
-            const feature = e.detail;
-            console.log(feature); // 검색된 장소 정보 처리
-        });
+    const searchBox = document.querySelector('mapbox-search-box');
+    searchBox.accessToken = mapboxgl.accessToken;
+    
+    searchBox.options = {
+        language: 'ko', // 검색어 자동완성에 대한 언어 설정
+        country: 'KR',   // 특정 국가로 결과를 제한
+        proximity: [100.5018, 13.7563] // 방콕을 중심으로 검색
     };
+
+    searchBox.addEventListener('retrieve', (e) => {
+        const feature = e.detail;
+        map.flyTo({
+            center: feature.geometry.coordinates,
+            zoom: 14
+        });
+    });
 </script>
 
 </body>
