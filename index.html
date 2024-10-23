@@ -6,7 +6,6 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script> <!-- CSV 파싱을 위한 라이브러리 -->
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -49,46 +48,44 @@
 
         // 3D 지형 스타일 적용
         map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-    });
 
-    // 지도의 줌과 스크롤 제어 추가
-    map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.enable();
+        // GeoJSON 데이터 로드
+        map.addSource('locations', {
+            type: 'geojson',
+            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
+        });
 
-    // CSV 파일을 불러오기 위한 함수
-    function loadCSVData() {
-        Papa.parse('https://raw.githubusercontent.com/Map-youtube/map-youtube/refs/heads/main/location.csv', {
-            download: true,
-            header: true,
-            complete: function(results) {
-                const data = results.data;
-                data.forEach(location => {
-                    // 마커 생성
-                    const markerElement = document.createElement('div');
-                    markerElement.className = 'marker'; // 마커에 클래스 추가
-
-                    const marker = new mapboxgl.Marker(markerElement)
-                        // 고도(altitude)를 포함한 좌표로 마커 위치 설정
-                        .setLngLat([location.longitude, location.latitude, location.altitude])
-                        .setPopup(new mapboxgl.Popup({ offset: 25 }) // 클릭 시 표시할 팝업
-                            .setHTML(`<h3>${location.name}</h3><p>${location.description}</p>`))
-                        .addTo(map);
-
-                    // 마커에 마우스 이벤트 추가
-                    markerElement.addEventListener('mouseenter', () => {
-                        map.getCanvas().style.cursor = 'pointer'; // 마우스 커서 변경
-                    });
-
-                    markerElement.addEventListener('mouseleave', () => {
-                        map.getCanvas().style.cursor = ''; // 마우스 커서를 기본으로 복원
-                    });
-                });
+        // 마커로 표시
+        map.addLayer({
+            'id': 'locations-layer',
+            'type': 'circle',
+            'source': 'locations',
+            'paint': {
+                'circle-radius': 10,
+                'circle-color': 'red'
             }
         });
-    }
 
-    // CSV 데이터 로드 및 지도에 표시
-    loadCSVData();
+        // 클릭하면 팝업 표시
+        map.on('click', 'locations-layer', function (e) {
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const { name, description } = e.features[0].properties;
+
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`<h3>${name}</h3><p>${description}</p>`)
+                .addTo(map);
+        });
+
+        // 마커에 마우스 이벤트 추가
+        map.on('mouseenter', 'locations-layer', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'locations-layer', () => {
+            map.getCanvas().style.cursor = '';
+        });
+    });
+
 </script>
 
 </body>
