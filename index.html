@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여행지 및 식당 안내</title>
+    <title>여행지 및 식당 안내1</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
     <style>
@@ -103,6 +103,29 @@
                 center: { lat: 12.7882166, lng: 101.135258 },
                 zoom: 10,
             });
+
+            // GEOJSON 데이터 불러오기
+            fetch('https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    // GEOJSON을 지도에 추가
+                    map.data.addGeoJson(data);
+
+                    // 각 피처에 클릭 이벤트 추가
+                    map.data.addListener('click', (event) => {
+                        const location = {
+                            title: event.feature.getProperty('title'),
+                            address: event.feature.getProperty('address'),
+                            hours: event.feature.getProperty('hours'),
+                            videoId: event.feature.getProperty('videoId'),
+                        };
+                        showInfoBox(location);
+                        map.panTo(event.latLng);
+                    });
+                })
+                .catch(error => {
+                    console.error('GEOJSON 데이터 로드 실패:', error);
+                });
 
             const locations = [
                 { title: "맛잇다식당", address: "서울군", hours: "1시간", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
