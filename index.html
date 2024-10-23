@@ -40,6 +40,13 @@
     // 확대/축소 버튼 추가
     map.addControl(new mapboxgl.NavigationControl());
 
+    // Geocoder 검색창 추가
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+    });
+    map.addControl(geocoder);
+
     // Mapbox DEM 소스 추가
     map.on('load', () => {
         map.addSource('mapbox-dem', {
