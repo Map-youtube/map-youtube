@@ -1,129 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <title>Guides2</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
-    <!-- Mapbox Search JS Library -->
-    <script src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>여행지 및 식당 안내</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
     <style>
-        body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        #search-container { position: absolute; top: 10px; left: 10px; z-index: 1; }
-
-        /* 마커 스타일 */
-        .marker {
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            border-radius: 50%;
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 600px; /* 기본 높이 */
+            width: 100%; /* 모바일 환경에서 100%로 채움 */
+        }
+        #locationButton {
+            margin: 10px;
+            padding: 10px;
+            display: block; /* 기본적으로 모바일에서는 표시 */
+        }
+        .info-box {
+            position: absolute;
+            bottom: 10px; /* 기본 위치 */
+            left: 10px;
+            width: calc(100% - 20px); /* 모바일 환경에서 기본 너비 */
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: none; /* 그림자 효과 제거 */
+            display: none; /* 초기에는 숨김 */
+        }
+        #youtubeEmbed {
+            width: 100%;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 비율을 유지하기 위한 비율 */
+            height: 0;
+            overflow: hidden;
+        }
+        #youtubeEmbed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* 전체 화면이 보이도록 설정 */
         }
 
-        /* 마커에 마우스를 올렸을 때 커서 변경 */
-        .marker:hover { cursor: pointer; }
+        /* 모바일 환경 스타일 */
+        @media (max-width: 768px) {
+            #map {
+                height: 300px; /* 모바일에서 지도 높이 조정 */
+            }
+            .info-box {
+                bottom: 5px; /* 모바일에서 안내창 위치 조정 */
+            }
+        }
+        /* PC 환경에서 화면 비율 조정 */
+        @media (min-width: 769px) {
+            #map {
+                width: 60%; /* PC 환경에서 지도는 60% */
+                height: 600px; /* 고정 높이 */
+                float: left; /* 지도 왼쪽 배치 */
+            }
+            .info-box {
+                position: static; /* 절대 위치 해제 */
+                width: 40%; /* 안내창을 40%로 설정 */
+                float: left; /* 안내창을 지도 오른쪽에 배치 */
+                height: 600px; /* 지도와 같은 높이로 맞춤 */
+                overflow-y: auto; /* 내용이 넘칠 경우 스크롤 */
+                box-sizing: border-box; /* 패딩과 폭을 제대로 계산 */
+            }
+            #locationButton {
+                display: none; /* PC에서는 위치 버튼 숨김 */
+            }
+        }
     </style>
 </head>
 <body>
 
-<div id="search-container">
-    <mapbox-search-box 
-        access-token="pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA" 
-        proximity="0,0">
-    </mapbox-search-box>
-</div>
-<div id="map"></div>
+    <h1>여행지 및 식당 안내</h1>
+    <button id="locationButton">현재 위치 보기</button>
+    <div id="map"></div>
+    <div class="info-box" id="infoBox">
+        <h3 id="storeName"></h3>
+        <p>가게주소 : <span id="storeAddress"></span></p>
+        <p>영업시간 : <span id="storeHours"></span></p>
+        <p>YouTube Link : <a href="#" id="youtubeLink" target="_blank">링크 보기</a></p>
+        <div id="youtubeEmbed" style="display:none;">
+            <iframe src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
 
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA';
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
-        center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
-        zoom: 12,
-        terrain: { // 지형 데이터를 활성화
-            source: 'mapbox-dem',
-            exaggeration: 1.5
+    <script>
+        let map;
+        let userMarker;
+        let userCircle;
+        let watchId;
+        let isTracking = false;
+        let firstClick = true;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.7882166, lng: 101.135258 },
+                zoom: 10,
+            });
+
+            const locations = [
+                { title: "맛잇다식당", address: "서울군", hours: "1시간", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
+            ];
+
+            locations.forEach(location => {
+                const marker = new google.maps.Marker({
+                    position: { lat: location.lat, lng: location.lng },
+                    map: null, // 초기에는 맵에 표시하지 않음
+                    title: location.title,
+                });
+
+                marker.addListener("click", () => {
+                    showInfoBox(location);
+                    map.panTo(marker.getPosition());
+                });
+                
+                // 줌 레벨에 따라 마커 표시
+                map.addListener('zoom_changed', () => {
+                    const zoom = map.getZoom();
+                    marker.setMap(zoom >= 16 ? map : null); // 줌 레벨이 16 이상일 때만 보이도록 설정
+                });
+            });
+
+            document.getElementById("youtubeLink").addEventListener("click", function(event) {
+                event.preventDefault(); // 기본 링크 동작 방지
+                const videoId = locations[0].videoId;
+                const videoLink = `https://www.youtube.com/embed/${videoId}`;
+                
+                if (window.innerWidth <= 768) {
+                    // 모바일 환경에서 자동 스크롤 및 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                    window.scrollTo(0, document.body.scrollHeight); // 페이지 아래로 스크롤
+                } else {
+                    // PC 환경에서 영상 표시
+                    document.getElementById("youtubeEmbed").style.display = 'block';
+                    document.querySelector("#youtubeEmbed iframe").src = videoLink;
+                }
+            });
         }
-    });
 
-    // 확대/축소 버튼 추가
-    map.addControl(new mapboxgl.NavigationControl());
+        function trackUserLocation() {
+            if (navigator.geolocation) {
+                watchId = navigator.geolocation.watchPosition(position => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        heading: position.coords.heading || 0
+                    };
+                    updateUserMarker(pos);
 
-    // Mapbox DEM 소스 추가
-    map.on('load', () => {
-        map.addSource('mapbox-dem', {
-            "type": 'raster-dem',
-            "url": 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            "tileSize": 512,
-            "maxzoom": 14
-        });
-
-        // 3D 지형 스타일 적용
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
-        // GeoJSON 데이터 로드
-        map.addSource('locations', {
-            type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
-        });
-
-        // 마커로 표시
-        map.addLayer({
-            'id': 'locations-layer',
-            'type': 'circle',
-            'source': 'locations',
-            'paint': {
-                'circle-radius': 10,
-                'circle-color': 'red'
+                    if (isTracking && firstClick) {
+                        map.panTo(pos);
+                        map.setZoom(16);
+                        firstClick = false;
+                        isTracking = false;
+                    } else if (isTracking && !firstClick) {
+                        map.panTo(pos);
+                        isTracking = false;
+                    }
+                }, () => {
+                    alert("위치 정보를 가져올 수 없습니다.");
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 5000
+                });
+            } else {
+                alert("브라우저가 위치 서비스를 지원하지 않습니다.");
             }
-        });
+        }
 
-        // 클릭하면 팝업 표시
-        map.on('click', 'locations-layer', function (e) {
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const { NAME, DESCRIPTION } = e.features[0].properties;
+        function updateUserMarker(position) {
+            if (!userMarker) {
+                userMarker = new google.maps.Marker({
+                    position: { lat: position.lat, lng: position.lng },
+                    map: map,
+                    title: "현재 위치",
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 5,
+                        rotation: position.heading,
+                        fillColor: "blue",
+                        fillOpacity: 1,
+                        strokeWeight: 2
+                    }
+                });
 
-            // DESCRIPTION이 URL이면 하이퍼링크로 처리
-            let descriptionContent = DESCRIPTION;
-            if (DESCRIPTION.startsWith('http')) {
-                descriptionContent = `<a href="${DESCRIPTION}" target="_blank">${DESCRIPTION}</a>`;
+                userCircle = new google.maps.Circle({
+                    center: { lat: position.lat, lng: position.lng },
+                    radius: 50,
+                    map: map,
+                    fillColor: '#ADD8E6',
+                    fillOpacity: 0.3,
+                    strokeColor: '#1E90FF',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2
+                });
+            } else {
+                userMarker.setPosition({ lat: position.lat, lng: position.lng });
+                userMarker.setIcon({
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    scale: 5,
+                    rotation: position.heading,
+                    fillColor: "blue",
+                    fillOpacity: 1,
+                    strokeWeight: 2
+                });
+
+                userCircle.setCenter({ lat: position.lat, lng: position.lng });
             }
+        }
 
-            new mapboxgl.Popup()
-                .setLngLat(coordinates)
-                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`) // 하이퍼링크 처리된 DESCRIPTION 사용
-                .addTo(map);
+        function showInfoBox(location) {
+            document.getElementById("storeName").textContent = location.title;
+            document.getElementById("storeAddress").textContent = location.address;
+            document.getElementById("storeHours").textContent = location.hours;
+
+            document.getElementById("infoBox").style.display = 'block';
+            
+            // YouTube 링크를 클릭하면 영상 보이기
+            const videoLink = `https://www.youtube.com/embed/${location.videoId}`;
+            document.querySelector("#youtubeEmbed iframe").src = videoLink;
+
+            // 영상 표시
+            document.getElementById("youtubeEmbed").style.display = 'block';
+        }
+
+        document.getElementById("locationButton").addEventListener("click", function() {
+            isTracking = true;
+            firstClick = true;
+            trackUserLocation();
         });
-
-        // 마커에 마우스 이벤트 추가
-        map.on('mouseenter', 'locations-layer', () => {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'locations-layer', () => {
-            map.getCanvas().style.cursor = '';
-        });
-    });
-
-    // Search Box integration
-    const searchBox = document.querySelector('mapbox-search-box');
-    searchBox.accessToken = mapboxgl.accessToken;
-    
-    searchBox.options = {
-        language: 'ko', // 검색어 자동완성에 대한 언어 설정
-        country: 'KR',   // 특정 국가로 결과를 제한
-        proximity: [100.5018, 13.7563] // 방콕을 중심으로 검색
-    };
-
-    searchBox.addEventListener('retrieve', (e) => {
-        const feature = e.detail;
-        map.flyTo({
-            center: feature.geometry.coordinates,
-            zoom: 14
-        });
-    });
-</script>
-
+    </script>
 </body>
 </html>
