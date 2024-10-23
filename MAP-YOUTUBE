@@ -1,73 +1,72 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapbox Search1</title>
+    <meta charset="utf-8">
+    <title>Guides111</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
-    <script src="https://api.mapbox.com/search-js/v1.0.0/mapbox-search.min.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/search-js/v1.0.0/mapbox-search.css" />
+    <!-- Mapbox Search JS Library -->
+    <script src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js" defer></script>
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 50px; bottom: 0; width: 100%; }
-        #search-bar {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 2; /* 검색창이 지도보다 위에 보이도록 설정 */
-            width: 300px;
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        #search-container { position: absolute; top: 10px; left: 10px; z-index: 1; }
+
+        /* 마커 스타일 */
+        .marker {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
         }
-        .mapboxgl-ctrl-geocoder {
-            min-width: 100%;
-        }
+
+        /* 마커에 마우스를 올렸을 때 커서 변경 */
+        .marker:hover { cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="search-bar"></div>
+<div id="search-container">
+    <mapbox-search-box access-token="pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA" proximity="0,0"></mapbox-search-box>
+</div>
 <div id="map"></div>
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA';
-    
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
-        zoom: 12
-    });
-
-    map.addControl(new mapboxgl.NavigationControl());
-
-    // Mapbox Search JS 설정
-    const searchBox = new MapboxSearchBox({
-        accessToken: mapboxgl.accessToken,
-        placeholder: "장소 검색",
-        language: 'ko', // 한글로 검색 가능
-        limit: 10 // 검색 결과 수 제한
-    });
-
-    // Search Box를 map과 연결
-    document.getElementById('search-bar').appendChild(searchBox.container);
-
-    // 검색 결과에서 선택된 위치로 지도 이동
-    searchBox.on('result', (event) => {
-        if (event.result && event.result.center) {
-            map.flyTo({
-                center: event.result.center,
-                zoom: 14
-            });
+        zoom: 12,
+        terrain: { // 지형 데이터를 활성화
+            source: 'mapbox-dem',
+            exaggeration: 1.5
         }
     });
 
-    // GeoJSON 데이터 소스 추가 (사용자 정의 데이터)
+    // 확대/축소 버튼 추가
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Mapbox DEM 소스 추가
     map.on('load', () => {
-        map.addSource('locations', {
-            type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson'
+        map.addSource('mapbox-dem', {
+            "type": 'raster-dem',
+            "url": 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            "tileSize": 512,
+            "maxzoom": 14
         });
 
+        // 3D 지형 스타일 적용
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+        // GeoJSON 데이터 로드
+        map.addSource('locations', {
+            type: 'geojson',
+            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
+        });
+
+        // 마커로 표시
         map.addLayer({
             'id': 'locations-layer',
             'type': 'circle',
@@ -78,10 +77,12 @@
             }
         });
 
+        // 클릭하면 팝업 표시
         map.on('click', 'locations-layer', function (e) {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const { NAME, DESCRIPTION } = e.features[0].properties;
 
+            // DESCRIPTION이 URL이면 하이퍼링크로 처리
             let descriptionContent = DESCRIPTION;
             if (DESCRIPTION.startsWith('http')) {
                 descriptionContent = `<a href="${DESCRIPTION}" target="_blank">${DESCRIPTION}</a>`;
@@ -89,10 +90,35 @@
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`)
+                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`) // 하이퍼링크 처리된 DESCRIPTION 사용
                 .addTo(map);
         });
+
+        // 마커에 마우스 이벤트 추가
+        map.on('mouseenter', 'locations-layer', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'locations-layer', () => {
+            map.getCanvas().style.cursor = '';
+        });
     });
+
+    // Search Box integration
+    const script = document.getElementById('search-js');
+    script.onload = function () {
+        const searchBox = document.querySelector('mapbox-search-box');
+        searchBox.bindMap(map);  // Bind the search box to the map for location zoom
+
+        searchBox.options = {
+            language: 'ko', // 검색어 자동완성에 대한 언어 설정
+            country: 'KR'   // 특정 국가로 결과를 제한
+        };
+
+        searchBox.addEventListener('retrieve', (e) => {
+            const feature = e.detail;
+            console.log(feature); // 검색된 장소 정보 처리
+        });
+    };
 </script>
 
 </body>
