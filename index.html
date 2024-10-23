@@ -37,6 +37,9 @@
         }
     });
 
+    // 확대/축소 버튼 추가
+    map.addControl(new mapboxgl.NavigationControl());
+
     // Mapbox DEM 소스 추가
     map.on('load', () => {
         map.addSource('mapbox-dem', {
