@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여행지 및 식당 안내2</title>
+    <title>여행지 및 식당 안내1</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI&callback=initMap" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,11 +18,6 @@
             margin: 10px;
             padding: 10px;
             display: block; /* 기본적으로 모바일에서는 표시 */
-        }
-        #searchInput {
-            margin: 10px;
-            padding: 10px;
-            width: calc(100% - 40px); /* 입력창 너비 설정 */
         }
         .info-box {
             position: absolute;
@@ -83,7 +78,6 @@
 <body>
 
     <h1>여행지 및 식당 안내</h1>
-    <input id="searchInput" type="text" placeholder="장소 검색...">
     <button id="locationButton">현재 위치 보기</button>
     <div id="map"></div>
     <div class="info-box" id="infoBox">
@@ -103,7 +97,6 @@
         let watchId;
         let isTracking = false;
         let firstClick = true;
-        let geoJsonLocations = []; // GEOJSON 위치 정보를 저장할 배열
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
@@ -117,7 +110,6 @@
                 .then(data => {
                     // GEOJSON을 지도에 추가
                     map.data.addGeoJson(data);
-                    geoJsonLocations = data.features; // GEOJSON 피처를 배열에 저장
 
                     // 각 피처에 클릭 이벤트 추가
                     map.data.addListener('click', (event) => {
@@ -134,26 +126,6 @@
                 .catch(error => {
                     console.error('GEOJSON 데이터 로드 실패:', error);
                 });
-
-            // 장소 검색 기능 추가
-            const input = document.getElementById("searchInput");
-            const autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo('bounds', map);
-
-            autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace();
-                if (!place.geometry) {
-                    return; // 장소 정보가 없으면 종료
-                }
-
-                // 검색한 장소로 지도 이동
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(16); // 줌 레벨 설정
-                }
-            });
 
             const locations = [
                 { title: "맛잇다식당", address: "서울군", hours: "1시간", lat: 12.7874027, lng: 101.135227, videoId: "gCWIa4TwcPc" }
