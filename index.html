@@ -71,9 +71,15 @@
             const coordinates = e.features[0].geometry.coordinates.slice();
             const { NAME, DESCRIPTION } = e.features[0].properties;
 
+            // DESCRIPTION이 URL이면 하이퍼링크로 처리
+            let descriptionContent = DESCRIPTION;
+            if (DESCRIPTION.startsWith('http')) {
+                descriptionContent = `<a href="${DESCRIPTION}" target="_blank">${DESCRIPTION}</a>`;
+            }
+
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(`<h3>${NAME}</h3><p>${DESCRIPTION}</p>`)
+                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`) // 하이퍼링크 처리된 DESCRIPTION 사용
                 .addTo(map);
         });
 
