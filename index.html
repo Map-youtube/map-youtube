@@ -1,51 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Guides1</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapbox Search</title>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/search-js/v1.0.0/mapbox-search.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/search-js/v1.0.0/mapbox-search.css" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 40px; bottom: 0; width: 100%; }
-        #search-bar { position: absolute; top: 10px; left: 10px; z-index: 1; width: 300px; }
-        .marker { width: 20px; height: 20px; background-color: red; border-radius: 50%; }
-        .marker:hover { cursor: pointer; }
+        #map { position: absolute; top: 50px; bottom: 0; width: 100%; }
+        .mapboxgl-ctrl-geocoder { margin: 10px; }
     </style>
 </head>
 <body>
-<div id="search-bar">
-    <input type="text" id="location-search" placeholder="위치 검색" style="width: 100%; padding: 5px; font-size: 16px;">
+
+<div id="search-bar" style="position: absolute; top: 10px; left: 10px; z-index: 1; width: 300px;">
+    <!-- Search Box를 추가할 div -->
 </div>
 <div id="map"></div>
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA';
+    
     const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
-        zoom: 12,
-        terrain: {
-            source: 'mapbox-dem',
-            exaggeration: 1.5
-        }
+        zoom: 12
     });
 
     map.addControl(new mapboxgl.NavigationControl());
 
+    // Mapbox Search JS 설정
+    const searchBox = new MapboxSearchBox({
+        accessToken: mapboxgl.accessToken,
+        placeholder: "장소 검색",
+        language: 'ko', // 한글로 검색 가능
+        limit: 10 // 검색 결과 수 제한
+    });
+
+    // Search Box를 map과 연결
+    document.getElementById('search-bar').appendChild(searchBox.container);
+
+    // 검색 결과에서 선택된 위치로 지도 이동
+    searchBox.on('result', (event) => {
+        if (event.result && event.result.center) {
+            map.flyTo({
+                center: event.result.center,
+                zoom: 14
+            });
+        }
+    });
+
+    // GeoJSON 데이터 소스 추가 (사용자 정의 데이터)
     map.on('load', () => {
-        map.addSource('mapbox-dem', {
-            "type": 'raster-dem',
-            "url": 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            "tileSize": 512,
-            "maxzoom": 14
-        });
-
-        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
-
-        // GeoJSON 데이터 로드
         map.addSource('locations', {
             type: 'geojson',
             data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson'
@@ -74,52 +84,6 @@
                 .setLngLat(coordinates)
                 .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`)
                 .addTo(map);
-        });
-
-        map.on('mouseenter', 'locations-layer', () => {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'locations-layer', () => {
-            map.getCanvas().style.cursor = '';
-        });
-
-        // Mapbox Search Box API (전 세계 위치 검색 가능)
-        const geocoder = new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            mapboxgl: mapboxgl,
-            placeholder: '장소 검색',
-            countries: 'th', // 원하는 국가로 제한 가능, 전 세계 검색 가능하려면 제거
-            language: 'ko', // 한글로 검색 가능하게 설정
-            marker: false, // 선택한 위치에 마커 표시하지 않음
-            types: 'poi,place,address', // 검색 가능 유형
-            limit: 10 // 검색 결과 제한
-        });
-
-        // 검색창 UI 추가
-        document.getElementById('search-bar').appendChild(geocoder.onAdd(map));
-
-        // GeoJSON 데이터도 검색에 포함
-        const searchInput = document.getElementById('location-search');
-        searchInput.addEventListener('input', function() {
-            const query = searchInput.value.toLowerCase();
-
-            map.setFilter('locations-layer', [
-                'all',
-                ['any',
-                    ['match', ['get', 'NAME'], [query], true, false],
-                    ['match', ['get', 'NAME'], [query.toUpperCase()], true, false],
-                    ['match', ['get', 'NAME'], [query.charAt(0).toUpperCase() + query.slice(1)], true, false]
-                ]
-            ]);
-        });
-
-        // 검색 결과에서 선택된 위치로 이동
-        geocoder.on('result', function (e) {
-            const { center } = e.result;
-            map.flyTo({
-                center: center,
-                zoom: 14
-            });
         });
     });
 </script>
