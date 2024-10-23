@@ -83,7 +83,21 @@
             map.getCanvas().style.cursor = '';
         });
 
-        // 검색 기능 추가
+        // Mapbox Geocoder 추가 (전 세계 위치 검색 가능)
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            placeholder: '장소 검색',
+            countries: 'th', // 원하는 국가로 제한 가능, 전 세계 검색 가능하려면 제거
+            language: 'ko', // 한글로 검색 가능하게 설정
+            marker: false, // 선택한 위치에 마커 표시하지 않음
+            types: 'poi,place,address' // 검색 가능 유형
+        });
+
+        // 검색창 UI 추가
+        document.getElementById('search-bar').appendChild(geocoder.onAdd(map));
+
+        // GeoJSON 데이터도 검색에 포함
         const searchInput = document.getElementById('location-search');
         searchInput.addEventListener('input', function() {
             const query = searchInput.value.toLowerCase();
@@ -97,21 +111,9 @@
                 ]
             ]);
         });
-        
-        // 검색창 자동완성 기능 추가
-        const autocompleteResults = new mapboxgl.MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            mapboxgl: mapboxgl,
-            countries: 'th', // 태국 기준으로 설정 (필요 시 조정 가능)
-            language: 'ko', // 한글 자동완성
-            marker: false,
-            types: 'poi,place,address'
-        });
 
-        autocompleteResults.addTo(map);
-
-        // 검색 결과에서 자동으로 한글-영어 매칭 검색
-        autocompleteResults.on('result', function(e) {
+        // 검색 결과에서 선택된 위치로 이동
+        geocoder.on('result', function (e) {
             const { center } = e.result;
             map.flyTo({
                 center: center,
