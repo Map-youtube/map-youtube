@@ -52,7 +52,7 @@
         // GeoJSON 데이터 로드
         map.addSource('locations', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
+            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.geojson' // GeoJSON 파일 URL
         });
 
         // 마커로 표시
@@ -71,9 +71,13 @@
             const coordinates = e.features[0].geometry.coordinates.slice();
             const { name, description } = e.features[0].properties;
 
+            // 이름과 설명을 올바르게 참조
+            const locationName = name || 'No name available';
+            const locationDescription = description || 'No description available';
+
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(`<h3>${name}</h3><p>${description}</p>`)
+                .setHTML(`<h3>${locationName}</h3><p>${locationDescription}</p>`)
                 .addTo(map);
         });
 
