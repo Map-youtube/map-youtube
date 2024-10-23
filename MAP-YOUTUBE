@@ -8,22 +8,18 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-
-        /* 마커 스타일 */
-        .marker {
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            border-radius: 50%;
-        }
-
-        /* 마커에 마우스를 올렸을 때 커서 변경 */
+        #map { position: absolute; top: 40px; bottom: 0; width: 100%; }
+        #search-bar { position: absolute; top: 10px; left: 10px; z-index: 1; width: 300px; }
+        .marker { width: 20px; height: 20px; background-color: red; border-radius: 50%; }
         .marker:hover { cursor: pointer; }
     </style>
 </head>
 <body>
+<div id="search-bar">
+    <input type="text" id="location-search" placeholder="위치 검색" style="width: 100%; padding: 5px; font-size: 16px;">
+</div>
 <div id="map"></div>
+
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2hvb3RpbmdzdGFyMiIsImEiOiJjbTJrZjk4emgwMHNnMmpzZ2N5ZnozdG1oIn0.rW0cfxPZiQOWkItL-UeoFA';
     const map = new mapboxgl.Map({
@@ -31,23 +27,14 @@
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
         zoom: 12,
-        terrain: { // 지형 데이터를 활성화
+        terrain: {
             source: 'mapbox-dem',
             exaggeration: 1.5
         }
     });
 
-    // 확대/축소 버튼 추가
     map.addControl(new mapboxgl.NavigationControl());
 
-    // Geocoder 검색창 추가
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl
-    });
-    map.addControl(geocoder);
-
-    // Mapbox DEM 소스 추가
     map.on('load', () => {
         map.addSource('mapbox-dem', {
             "type": 'raster-dem',
@@ -56,16 +43,14 @@
             "maxzoom": 14
         });
 
-        // 3D 지형 스타일 적용
         map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
         // GeoJSON 데이터 로드
         map.addSource('locations', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
+            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson'
         });
 
-        // 마커로 표시
         map.addLayer({
             'id': 'locations-layer',
             'type': 'circle',
@@ -76,12 +61,10 @@
             }
         });
 
-        // 클릭하면 팝업 표시
         map.on('click', 'locations-layer', function (e) {
             const coordinates = e.features[0].geometry.coordinates.slice();
             const { NAME, DESCRIPTION } = e.features[0].properties;
 
-            // DESCRIPTION이 URL이면 하이퍼링크로 처리
             let descriptionContent = DESCRIPTION;
             if (DESCRIPTION.startsWith('http')) {
                 descriptionContent = `<a href="${DESCRIPTION}" target="_blank">${DESCRIPTION}</a>`;
@@ -89,19 +72,53 @@
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`) // 하이퍼링크 처리된 DESCRIPTION 사용
+                .setHTML(`<h3>${NAME}</h3><p>${descriptionContent}</p>`)
                 .addTo(map);
         });
 
-        // 마커에 마우스 이벤트 추가
         map.on('mouseenter', 'locations-layer', () => {
             map.getCanvas().style.cursor = 'pointer';
         });
         map.on('mouseleave', 'locations-layer', () => {
             map.getCanvas().style.cursor = '';
         });
-    });
 
+        // 검색 기능 추가
+        const searchInput = document.getElementById('location-search');
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value.toLowerCase();
+
+            map.setFilter('locations-layer', [
+                'all',
+                ['any',
+                    ['match', ['get', 'NAME'], [query], true, false],
+                    ['match', ['get', 'NAME'], [query.toUpperCase()], true, false],
+                    ['match', ['get', 'NAME'], [query.charAt(0).toUpperCase() + query.slice(1)], true, false]
+                ]
+            ]);
+        });
+        
+        // 검색창 자동완성 기능 추가
+        const autocompleteResults = new mapboxgl.MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            countries: 'th', // 태국 기준으로 설정 (필요 시 조정 가능)
+            language: 'ko', // 한글 자동완성
+            marker: false,
+            types: 'poi,place,address'
+        });
+
+        autocompleteResults.addTo(map);
+
+        // 검색 결과에서 자동으로 한글-영어 매칭 검색
+        autocompleteResults.on('result', function(e) {
+            const { center } = e.result;
+            map.flyTo({
+                center: center,
+                zoom: 14
+            });
+        });
+    });
 </script>
 
 </body>
