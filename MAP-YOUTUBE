@@ -30,47 +30,62 @@
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v9',
         center: [100.5018, 13.7563], // 지도 시작 위치를 방콕으로 설정
-        zoom: 12
+        zoom: 12,
+        terrain: { // 지형 데이터를 활성화
+            source: 'mapbox-dem',
+            exaggeration: 1.5
+        }
     });
 
-    // 지도의 줌과 스크롤 제어 추가
-    map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.enable();
+    // Mapbox DEM 소스 추가
+    map.on('load', () => {
+        map.addSource('mapbox-dem', {
+            "type": 'raster-dem',
+            "url": 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            "tileSize": 512,
+            "maxzoom": 14
+        });
 
-    // GeoJSON 파일을 불러오기 위한 함수
-    function loadGeoJSONData() {
-        fetch('https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.geojson')
-            .then(response => response.json())
-            .then(data => {
-                data.features.forEach(location => {
-                    const coordinates = location.geometry.coordinates;
-                    const properties = location.properties;
+        // 3D 지형 스타일 적용
+        map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
-                    // 마커 생성
-                    const markerElement = document.createElement('div');
-                    markerElement.className = 'marker'; // 마커에 클래스 추가
+        // GeoJSON 데이터 로드
+        map.addSource('locations', {
+            type: 'geojson',
+            data: 'https://raw.githubusercontent.com/Map-youtube/map-youtube/main/map.geojson' // GeoJSON 파일 URL
+        });
 
-                    // 마커 추가
-                    const marker = new mapboxgl.Marker(markerElement)
-                        .setLngLat(coordinates) // 좌표 설정
-                        .setPopup(new mapboxgl.Popup({ offset: 25 }) // 클릭 시 표시할 팝업
-                            .setHTML(`<h3>${properties.name || 'No name available'}</h3><p>${properties.description || 'No description available'}</p>`))
-                        .addTo(map);
+        // 마커로 표시
+        map.addLayer({
+            'id': 'locations-layer',
+            'type': 'circle',
+            'source': 'locations',
+            'paint': {
+                'circle-radius': 10,
+                'circle-color': 'red'
+            }
+        });
 
-                    // 마커에 마우스 이벤트 추가
-                    markerElement.addEventListener('mouseenter', () => {
-                        map.getCanvas().style.cursor = 'pointer'; // 마우스 커서 변경
-                    });
+        // 클릭하면 팝업 표시
+        map.on('click', 'locations-layer', function (e) {
+            const coordinates = e.features[0].geometry.coordinates.slice();
+            const { name, description } = e.features[0].properties;
 
-                    markerElement.addEventListener('mouseleave', () => {
-                        map.getCanvas().style.cursor = ''; // 마우스 커서를 기본으로 복원
-                    });
-                });
-            });
-    }
+            new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(`<h3>${name}</h3><p>${description}</p>`)
+                .addTo(map);
+        });
 
-    // GeoJSON 데이터 로드 및 지도에 표시
-    loadGeoJSONData();
+        // 마커에 마우스 이벤트 추가
+        map.on('mouseenter', 'locations-layer', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'locations-layer', () => {
+            map.getCanvas().style.cursor = '';
+        });
+    });
+
 </script>
 
 </body>
