@@ -73,7 +73,7 @@
 
             new mapboxgl.Popup()
                 .setLngLat(coordinates)
-                .setHTML(`<h3>${name}</h3><p>${description}</p>`)
+                .setHTML(`<h3>${NAME}</h3><p>${DESCRIPTION}</p>`)
                 .addTo(map);
         });
 
