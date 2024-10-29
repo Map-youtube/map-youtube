@@ -21,6 +21,8 @@
 
     <script>
         // 구글 맵 초기 설정
+        let currentInfoWindow;  // 현재 열려 있는 정보창을 저장할 변수
+
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 0, lng: 0 },
@@ -59,9 +61,16 @@
                             `
                         });
 
-                        // 마커 클릭 시 정보창 열기 및 자동 재생 설정
+                        // 마커 클릭 시 기존 정보창 닫고 새 정보창 열기
                         marker.addListener("click", () => {
+                            // 현재 열려 있는 정보창이 있으면 닫기
+                            if (currentInfoWindow) {
+                                currentInfoWindow.close();
+                            }
+                            // 새 정보창 열기
                             infoWindow.open(map, marker);
+                            // 현재 열려 있는 정보창 업데이트
+                            currentInfoWindow = infoWindow;
                         });
                     });
                 }
