@@ -6,6 +6,7 @@
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/@googlemaps/markerclustererplus/dist/markerclusterer.min.js"></script>
     <style>
         #map {
             height: 100vh;
@@ -35,6 +36,8 @@
                 header: true,
                 complete: function(results) {
                     const data = results.data;
+                    const markers = []; // 마커를 저장할 배열
+
                     data.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
@@ -72,6 +75,14 @@
                             // 현재 열려 있는 정보창 업데이트
                             currentInfoWindow = infoWindow;
                         });
+
+                        // 마커를 배열에 추가
+                        markers.push(marker);
+                    });
+
+                    // MarkerClusterer 생성
+                    const markerCluster = new MarkerClusterer(map, markers, {
+                        imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m', // 클러스터 아이콘 경로
                     });
                 }
             });
