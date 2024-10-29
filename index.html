@@ -6,7 +6,7 @@
     <title>Map with YouTube Videos and Marker Clustering</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer.min.js"></script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer@2.0.3/dist/index.min.js"></script>
     <style>
         #map {
             height: 100vh;  /* 전체 화면 높이 설정 */
@@ -29,18 +29,14 @@
                 zoom: 2  // 전 세계 지도가 보이도록 줌 레벨 설정
             });
 
-            // 마커 배열 및 클러스터링 옵션 설정
-            const markers = [];
-            const markerCluster = new MarkerClusterer(map, markers, {
-                imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
-            });
-
             // CSV 파일에서 데이터 불러오기
             Papa.parse("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv", {
                 download: true,
                 header: true,
                 complete: function(results) {
                     const data = results.data;
+                    const markers = [];
+
                     data.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
@@ -50,7 +46,8 @@
                         // 마커 생성
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
-                            title: name
+                            title: name,
+                            map: map  // 마커를 지도에 직접 추가
                         });
 
                         // 유튜브 영상이 포함된 큰 정보창 설정
@@ -73,7 +70,7 @@
                     });
 
                     // 마커 클러스터링 실행
-                    markerCluster.addMarkers(markers);
+                    new MarkerClusterer({ markers, map });
                 }
             });
         }
