@@ -21,6 +21,25 @@
     <div id="map"></div>
 
     <script>
+        // CSV 파일을 불러와 파싱하는 함수
+        function fetchCSV(url) {
+            return fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.trim().split('\n');
+                    const parsedData = rows.slice(1).map(row => {
+                        const [latitude, longitude, location, youtubeLink] = row.split(',');
+                        return {
+                            latitude: parseFloat(latitude),
+                            longitude: parseFloat(longitude),
+                            location: location,
+                            youtubeLink: youtubeLink
+                        };
+                    });
+                    return parsedData;
+                });
+        }
+
         // 구글 맵 초기 설정
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
@@ -28,37 +47,27 @@
                 zoom: 2
             });
 
-            const sheetID = "1qQ48k2LjLal5e8H4a6LgjtmfnPNWxkiaw_hYtIJrWxo";  // 구글 시트 ID
-            const url = `https://spreadsheets.google.com/feeds/list/${sheetID}/1/public/values?alt=json`;
+            const csvUrl = "https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv";
 
-            fetch(url)
-                .then(response => response.json())
+            fetchCSV(csvUrl)
                 .then(data => {
-                    const entries = data.feed.entry;
-
-                    // 데이터 확인을 위해 console.log 추가
-                    entries.forEach(entry => console.log(entry));
-
                     const markers = [];
 
-                    entries.forEach(entry => {
-                        const lat = parseFloat(entry['gsx$latitude'].$t);
-                        const lng = parseFloat(entry['gsx$longitude'].$t);
-                        const name = entry['gsx$location'].$t;
-                        const youtubeURL = entry['gsx$youtubelink'].$t;
+                    data.forEach(entry => {
+                        const { latitude, longitude, location, youtubeLink } = entry;
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
-                            position: { lat, lng },
-                            title: name,
+                            position: { lat: latitude, lng: longitude },
+                            title: location,
                         });
 
                         // 유튜브 영상이 포함된 큰 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3>${name}</h3>
-                                    <iframe width="100%" height="250" src="${youtubeURL}?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                    <h3>${location}</h3>
+                                    <iframe width="100%" height="250" src="${youtubeLink}?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                 </div>
                             `
                         });
@@ -73,7 +82,7 @@
                     // 클러스터링 설정
                     new MarkerClusterer(map, markers);
                 })
-                .catch(error => console.error("Error fetching Google Sheets data:", error));
+                .catch(error => console.error("Error fetching CSV data:", error));
         }
 
         // 페이지 로드 시 initMap 실행
