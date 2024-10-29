@@ -36,8 +36,8 @@
                     data.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
-                        const name = location.name;
-                        const youtubeURL = location.youtube_url;
+                        const name = location.Location;
+                        const youtubeURL = location['Unnamed: 3'];
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
