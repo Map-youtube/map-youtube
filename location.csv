@@ -1,6 +1,2 @@
-﻿name,description,latitude,longitude,altitude
-A,ADF,13.7563,100.5018,
-B,ADF,13.7565,100.502,
-C,FDS,13.757,100.503,
-Rimnam BBQ Buffet Pin Klao,"Tuesday, 3:30–11:30 PM",13.7616109,100.4905682,754
-Terminal 21 Pattaya,"Tuesday, 11 AM–10 PM",12.94744,100.8897653,1634
+﻿Location,latitude,longitude,
+DDP,37.5665256,127.0066487,"서울실시간 DDP라이브 Live Cam I ""Dongdaemun design Plaza"", Seoul, Korea I 동대문디자인플라자 동대문사입 서울여행명소 동대문가볼만한곳"
