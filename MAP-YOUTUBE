@@ -37,7 +37,7 @@
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
                         const name = location.Location;
-                        const youtubeURL = location['Unnamed: 3'];
+                        const youtubeURL = location['YouTube Link'];
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
@@ -56,7 +56,7 @@
                             `
                         });
 
-                        // 마커 클릭 시 정보창 열기
+                        // 마커 클릭 시 정보창 열기 및 자동 재생 설정
                         marker.addListener("click", () => {
                             infoWindow.open(map, marker);
                         });
