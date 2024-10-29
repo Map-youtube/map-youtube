@@ -72,6 +72,11 @@
                             // 현재 열려 있는 정보창 업데이트
                             currentInfoWindow = infoWindow;
                         });
+                    });
+                }
+            });
+        }
+
 // Options to pass along to the marker clusterer
 const clusterOptions = {
   imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
@@ -89,10 +94,6 @@ for (let i=0; i<styles.length; i++) {
   styles[i].textColor = "red";
   styles[i].textSize = 18;
 }
-                    });
-                }
-            });
-        }
 
         // 페이지 로드 시 initMap 실행
         window.onload = initMap;
