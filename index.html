@@ -29,8 +29,7 @@
             });
 
             const sheetID = "1qQ48k2LjLal5e8H4a6LgjtmfnPNWxkiaw_hYtIJrWxo";  // 구글 시트 ID
-            const sheetName = "LOCATION";  // 구글 시트 이름
-            const url = `https://spreadsheets.google.com/feeds/list/${sheetID}/od6/public/values?alt=json`;
+            const url = `https://spreadsheets.google.com/feeds/list/${sheetID}/1/public/values?alt=json`;  // URL 수정 완료
 
             fetch(url)
                 .then(response => response.json())
