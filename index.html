@@ -35,15 +35,17 @@
                 .then(response => response.json())
                 .then(data => {
                     const entries = data.feed.entry;
-                    console.log(entries);  // 불러온 데이터를 콘솔에 출력
+
+                    // 데이터 확인을 위해 console.log 추가
+                    entries.forEach(entry => console.log(entry));
 
                     const markers = [];
 
                     entries.forEach(entry => {
-                        const lat = parseFloat(entry.gsx$latitude.$t);
-                        const lng = parseFloat(entry.gsx$longitude.$t);
-                        const name = entry.gsx$location.$t;
-                        const youtubeURL = entry.gsx$youtubelink.$t;
+                        const lat = parseFloat(entry['gsx$latitude'].$t);
+                        const lng = parseFloat(entry['gsx$longitude'].$t);
+                        const name = entry['gsx$location'].$t;
+                        const youtubeURL = entry['gsx$youtubelink'].$t;
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
