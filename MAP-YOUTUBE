@@ -12,7 +12,7 @@
             width: 100%;
         }
         .info-window {
-            width: 250px;
+            width: 500px; /* doubled from 250px */
         }
     </style>
 </head>
@@ -54,7 +54,7 @@
                             content: `
                                 <div class="info-window">
                                     <h3>${name}</h3>
-                                    <iframe width="100%" height="150" src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                    <iframe width="100%" height="300" src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                 </div>
                             `
                         });
