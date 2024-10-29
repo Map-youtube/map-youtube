@@ -35,6 +35,8 @@
                 .then(response => response.json())
                 .then(data => {
                     const entries = data.feed.entry;
+                    console.log(entries);  // 불러온 데이터를 콘솔에 출력
+
                     const markers = [];
 
                     entries.forEach(entry => {
