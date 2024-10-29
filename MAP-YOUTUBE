@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map with YouTube Videos and Marker Clustering</title>
+    <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
-    <script src="https://unpkg.com/@googlemaps/markerclusterer@2.0.3/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <style>
         #map {
             height: 100vh;
             width: 100%;
         }
         .info-window {
-            width: 500px;
-            height: 300px;
+            width: 250px;
         }
     </style>
 </head>
@@ -21,68 +20,49 @@
     <div id="map"></div>
 
     <script>
-        // CSV 파일을 불러와 파싱하는 함수
-        function fetchCSV(url) {
-            return fetch(url)
-                .then(response => response.text())
-                .then(data => {
-                    const rows = data.trim().split('\n');
-                    const parsedData = rows.slice(1).map(row => {
-                        const [latitude, longitude, location, youtubeLink] = row.split(',');
-                        return {
-                            latitude: parseFloat(latitude),
-                            longitude: parseFloat(longitude),
-                            location: location,
-                            youtubeLink: youtubeLink
-                        };
-                    });
-                    return parsedData;
-                });
-        }
-
         // 구글 맵 초기 설정
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 0, lng: 0 },
-                zoom: 2
+                zoom: 2,  // 전 세계 지도가 보이도록 줌 레벨 설정
             });
 
-            const csvUrl = "https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv";
-
-            fetchCSV(csvUrl)
-                .then(data => {
-                    const markers = [];
-
-                    data.forEach(entry => {
-                        const { latitude, longitude, location, youtubeLink } = entry;
+            // CSV 파일에서 데이터 불러오기
+            Papa.parse("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv", {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    const data = results.data;
+                    data.forEach(location => {
+                        const lat = parseFloat(location.latitude);
+                        const lng = parseFloat(location.longitude);
+                        const name = location.Location;
+                        const youtubeURL = location['YouTube Link'];
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
-                            position: { lat: latitude, lng: longitude },
-                            title: location,
+                            position: { lat, lng },
+                            map,
+                            title: name
                         });
 
-                        // 유튜브 영상이 포함된 큰 정보창 설정
+                        // 유튜브 영상이 포함된 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3>${location}</h3>
-                                    <iframe width="100%" height="250" src="${youtubeLink}?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                    <h3>${name}</h3>
+                                    <iframe width="100%" height="150" src="${youtubeURL}?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                 </div>
                             `
                         });
 
+                        // 마커 클릭 시 정보창 열기 및 자동 재생 설정
                         marker.addListener("click", () => {
                             infoWindow.open(map, marker);
                         });
-
-                        markers.push(marker);
                     });
-
-                    // 클러스터링 설정
-                    new MarkerClusterer(map, markers);
-                })
-                .catch(error => console.error("Error fetching CSV data:", error));
+                }
+            });
         }
 
         // 페이지 로드 시 initMap 실행
