@@ -30,8 +30,8 @@
 
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 0, lng: 0 },
-                zoom: 2,  // 전 세계 지도가 보이도록 줌 레벨 설정
+                center: { lat: 14.266607, lng: 131.8539491 },
+                zoom: 3,  // 전 세계 지도가 보이도록 줌 레벨 설정
             });
 
             // CSV 파일에서 데이터 불러오기
