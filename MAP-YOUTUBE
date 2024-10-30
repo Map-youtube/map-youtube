@@ -47,26 +47,23 @@
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
                         const name = location.Location;
-                        const videoID = location['YouTube Link'];
-
-                        // 유튜브 embed URL 생성
-                        const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
-
-                        // 마커 생성
-                        const marker = new google.maps.Marker({
-                            position: { lat, lng },
-                            map,
-                            title: name
-                        });
+                        const videoURL = location['YouTube Link'];  // 전체 유튜브 링크
 
                         // 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
                                     <h3>${name}</h3>
-                                    <iframe width="100%" height="300" src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                    <iframe width="100%" height="300" src="${videoURL}?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                 </div>
                             `
+                        });
+
+                        // 마커 생성
+                        const marker = new google.maps.Marker({
+                            position: { lat, lng },
+                            map,
+                            title: name
                         });
 
                         // 마커 클릭 시 기존 정보창 닫고 새 정보창 열기
