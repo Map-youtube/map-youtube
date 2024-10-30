@@ -6,7 +6,7 @@
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer@2.0.3/dist/index.min.js"></script> <!-- markerclusterer 라이브러리 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -67,7 +67,7 @@
                         // 마커 생성
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
-                            map: map, // 마커를 지도에 추가
+                            map,
                             title: name
                         });
 
@@ -85,7 +85,7 @@
                     });
 
                     // 마커 클러스터 생성
-                    new markerClusterer.MarkerClusterer({ map, markers }); // 클러스터 생성
+                    new markerClusterer.MarkerClusterer({ map, markers });
                 }
             });
         }
