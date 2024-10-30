@@ -47,7 +47,12 @@
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
                         const name = location.Location;
-                        const videoURL = location['YouTube Link'];  // 전체 유튜브 링크
+                        let videoURL = location['YouTube Link'];  // 전체 유튜브 링크
+
+                        // 링크를 embed 형식으로 변환
+                        if (videoURL.includes("watch?v=")) {
+                            videoURL = videoURL.replace("watch?v=", "embed/");
+                        }
 
                         // 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
