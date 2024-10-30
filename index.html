@@ -6,18 +6,19 @@
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
             margin: 0;
             padding: 0;
         }
         #map {
-            height: 70vh; /* 지도 높이를 70%로 설정 */
+            height: 70vh;
             width: 100%;
-            margin-top: 10vh; /* 화면 위쪽에서 10% 간격을 설정 */
+            margin-top: 10vh;
         }
         .info-window {
-            width: 500px; /* doubled from 250px */
+            width: 500px;
         }
     </style>
 </head>
@@ -31,8 +32,10 @@
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 15, lng: 150 },
-                zoom: 3,  // 전 세계 지도가 보이도록 줌 레벨 설정
+                zoom: 3,
             });
+
+            const markers = []; // 마커들을 저장할 배열
 
             // CSV 파일에서 데이터 불러오기
             Papa.parse("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv", {
@@ -44,7 +47,7 @@
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
                         const name = location.Location;
-                        const videoID = location['YouTube Link'];  // CSV에 저장된 영상 ID만 가져옴
+                        const videoID = location['YouTube Link'];
 
                         // 유튜브 embed URL 생성
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
@@ -56,7 +59,7 @@
                             title: name
                         });
 
-                        // 유튜브 영상이 포함된 정보창 설정
+                        // 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
@@ -68,16 +71,19 @@
 
                         // 마커 클릭 시 기존 정보창 닫고 새 정보창 열기
                         marker.addListener("click", () => {
-                            // 현재 열려 있는 정보창이 있으면 닫기
                             if (currentInfoWindow) {
                                 currentInfoWindow.close();
                             }
-                            // 새 정보창 열기
                             infoWindow.open(map, marker);
-                            // 현재 열려 있는 정보창 업데이트
                             currentInfoWindow = infoWindow;
                         });
+
+                        // 마커 배열에 추가
+                        markers.push(marker);
                     });
+
+                    // 마커 클러스터 생성
+                    new markerClusterer.MarkerClusterer({ map, markers });
                 }
             });
         }
