@@ -48,11 +48,12 @@
                         const name = location.Location;
                         let videoURL = location['YouTube Link'];
 
-                        // URL을 embed 형식으로 변환
+                        // 링크를 embed 형식으로 변환
                         if (videoURL.includes("watch?v=")) {
                             videoURL = videoURL.replace("watch?v=", "embed/");
                         }
 
+                        // 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
@@ -62,12 +63,14 @@
                             `
                         });
 
+                        // 마커 생성
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
                             map,
                             title: name
                         });
 
+                        // 마커 클릭 시 정보창 열기
                         marker.addListener("click", () => {
                             if (currentInfoWindow) {
                                 currentInfoWindow.close();
@@ -76,10 +79,11 @@
                             currentInfoWindow = infoWindow;
                         });
 
+                        // 마커 배열에 추가
                         markers.push(marker);
                     });
 
-                    // 마커 클러스터 생성
+                    // 모든 마커가 추가된 후 클러스터 생성
                     new markerClusterer.MarkerClusterer({ map, markers });
                 }
             });
