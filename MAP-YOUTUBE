@@ -12,15 +12,12 @@
             padding: 0;
         }
         #map {
+            height: 70vh; /* 지도 높이를 70%로 설정 */
             width: 100%;
-            margin-top: 10vh;
+            margin-top: 10vh; /* 화면 위쪽에서 10% 간격을 설정 */
         }
-
-        /* PC 환경 */
-        @media (min-width: 768px) {
-            #map {
-                height: 70vh; /* PC 환경에서 지도 높이 설정 */
-            }
+        .info-window {
+            width: 500px; /* doubled from 250px */
         }
     </style>
 </head>
@@ -47,7 +44,7 @@
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
                         const name = location.Location;
-                        const videoID = location['YouTube Link'];
+                        const videoID = location['YouTube Link'];  // CSV에 저장된 영상 ID만 가져옴
 
                         // 유튜브 embed URL 생성
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
@@ -71,10 +68,13 @@
 
                         // 마커 클릭 시 기존 정보창 닫고 새 정보창 열기
                         marker.addListener("click", () => {
+                            // 현재 열려 있는 정보창이 있으면 닫기
                             if (currentInfoWindow) {
                                 currentInfoWindow.close();
                             }
+                            // 새 정보창 열기
                             infoWindow.open(map, marker);
+                            // 현재 열려 있는 정보창 업데이트
                             currentInfoWindow = infoWindow;
                         });
                     });
@@ -82,20 +82,8 @@
             });
         }
 
-        // 모바일 환경에서 지도의 높이를 동적으로 설정
-        function adjustMapHeight() {
-            const mapElement = document.getElementById("map");
-            if (window.innerWidth < 768) {  // 모바일 환경 판단
-                mapElement.style.height = "20vh";  // 모바일에서 50vh 높이로 설정
-            }
-        }
-
-        // 페이지 로드 및 리사이즈 시 높이 조절
-        window.onload = () => {
-            initMap();
-            adjustMapHeight();
-        };
-        window.onresize = adjustMapHeight;
+        // 페이지 로드 시 initMap 실행
+        window.onload = initMap;
     </script>
 </body>
 </html>
