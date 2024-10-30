@@ -7,9 +7,14 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
         #map {
-            height: 100vh;
+            height: 70vh; /* 지도 높이를 70%로 설정 */
             width: 100%;
+            margin-top: 10vh; /* 화면 위쪽에서 10% 간격을 설정 */
         }
         .info-window {
             width: 500px; /* doubled from 250px */
