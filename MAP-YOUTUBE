@@ -85,7 +85,7 @@
                     });
 
                     // 마커 클러스터 생성
-                    new markerClusterer.MarkerClusterer({ map, markers });
+                    new MarkerClusterer(map, markers);
                 }
             });
         }
