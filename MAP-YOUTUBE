@@ -86,7 +86,7 @@
         function adjustMapHeight() {
             const mapElement = document.getElementById("map");
             if (window.innerWidth < 768) {  // 모바일 환경 판단
-                mapElement.style.height = "50vh";  // 모바일에서 50vh 높이로 설정
+                mapElement.style.height = "20vh";  // 모바일에서 50vh 높이로 설정
             }
         }
 
