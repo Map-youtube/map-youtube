@@ -42,7 +42,7 @@
                         const videoID = location['YouTube Link'];  // CSV에 저장된 영상 ID만 가져옴
 
                         // 유튜브 embed URL 생성
-                        const embedURL = `https://www.youtube.com/embed/${videoID}?autoplay=1&mute=1`;
+                        const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
 
                         // 마커 생성
                         const marker = new google.maps.Marker({
