@@ -6,7 +6,7 @@
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -67,7 +67,6 @@
                         // 마커 생성
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
-                            map,
                             title: name
                         });
 
@@ -85,7 +84,10 @@
                     });
 
                     // 마커 클러스터 생성
-                    new MarkerClusterer(map, markers);
+                    new markerClusterer.MarkerClusterer({
+                        map,
+                        markers
+                    });
                 }
             });
         }
