@@ -49,8 +49,8 @@
                     jsonData.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
-                        const name = location.Location;
-                        const videoID = location['YouTube Link'];
+                        const name = location.location;
+                        const videoID = location['youtube link'];
 
                         // 유튜브 embed URL 생성
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
