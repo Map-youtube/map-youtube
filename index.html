@@ -30,23 +30,10 @@
             width: 500px;
             height: 300px;
         }
-        /* 커스텀 닫기 버튼 스타일 */
-        .close-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: #f44336;
-            color: #fff;
-            border: none;
-            border-radius: 3px;
-            padding: 5px 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }        
         /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
         @media (max-width: 768px) {
             .info-window {
-                max-width: 95vw; /* 모바일에서 최대 너비 95vw로 설정 */
+                max-width: 100%; /* 모바일에서 정보창 너비를 화면의 100%로 설정 */
             }
             .info-window iframe {
                 width: 100%;
@@ -56,18 +43,13 @@
         }
         @media (max-width: 480px) {
             .info-window {
-                max-width: 95vw;
+                max-width: 100%;
             }
             .info-window iframe {
                 width: 100%;
                 height: auto;
                 aspect-ratio: 16 / 9;
             }
-            .close-btn {
-                font-size: 10px; /* 닫기 버튼 폰트 크기 70%로 축소 */
-                padding: 3px 6px;
-            }
-        }        
         }
     </style>
 </head>
