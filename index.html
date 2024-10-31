@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
@@ -37,20 +37,17 @@
 
             const markers = []; // 마커들을 저장할 배열
 
-            // XLSX 파일을 불러와서 데이터 파싱
-            fetch("https://your-server.com/path/to/location.xlsx")  // XLSX 파일의 실제 URL로 변경해야 합니다.
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: "array" });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-                    jsonData.forEach(location => {
+            // CSV 파일에서 데이터 불러오기
+            Papa.parse("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.csv", {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    const data = results.data;
+                    data.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
-                        const name = location.location;
-                        const videoID = location['youtube link'];
+                        const name = location.Location;
+                        const videoID = location['YouTube Link'];
 
                         // 유튜브 embed URL 생성
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
@@ -87,8 +84,8 @@
 
                     // 마커 클러스터 생성
                     new markerClusterer.MarkerClusterer({ map, markers });
-                })
-                .catch(error => console.error("Error loading the XLSX file:", error));
+                }
+            });
         }
 
         // 페이지 로드 시 initMap 실행
