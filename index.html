@@ -29,7 +29,17 @@
         /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
         @media (max-width: 768px) {
             .info-window {
-                max-width: 95%; /* 모바일에서 정보창 너비를 95%로 조정 */
+                max-width: 98%; /* 모바일에서 정보창 너비를 더 넓게 조정 */
+            }
+            .info-window iframe {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
+        }
+        @media (max-width: 480px) {
+            .info-window {
+                max-width: 98%;
             }
             .info-window iframe {
                 width: 100%;
