@@ -20,6 +20,10 @@
         .info-window {
             width: 100%;
             max-width: 500px;
+            padding: 0; /* 정보창 내 여백 제거 */
+        }
+        .info-window h3 {
+            margin: 0;
         }
         /* 기본 iframe 스타일 - PC 환경에서 고정 크기 */
         .info-window iframe {
@@ -29,7 +33,7 @@
         /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
         @media (max-width: 768px) {
             .info-window {
-                max-width: 110%; /* 모바일에서 정보창 너비를 화면의 110%로 설정 */
+                max-width: 100%; /* 모바일에서 정보창 너비를 화면의 100%로 설정 */
             }
             .info-window iframe {
                 width: 100%;
@@ -39,7 +43,7 @@
         }
         @media (max-width: 480px) {
             .info-window {
-                max-width: 110%;
+                max-width: 100%;
             }
             .info-window iframe {
                 width: 100%;
