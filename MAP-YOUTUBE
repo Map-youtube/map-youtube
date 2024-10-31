@@ -36,7 +36,7 @@
                 max-width: 100%; /* 모바일에서 정보창 너비를 화면의 100%로 설정 */
             }
             .info-window iframe {
-                width: 100%;
+                width: 700px;
                 height: auto;
                 aspect-ratio: 16 / 9;
             }
@@ -46,7 +46,7 @@
                 max-width: 100%;
             }
             .info-window iframe {
-                width: 100%;
+                width: 460px;
                 height: auto;
                 aspect-ratio: 16 / 9;
             }
