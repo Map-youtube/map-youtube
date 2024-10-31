@@ -21,10 +21,18 @@
             width: 100%;
             max-width: 500px;
         }
+        /* 기본 iframe 스타일 - PC 환경에서 고정 크기 */
         .info-window iframe {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 16 / 9; /* 16:9 비율을 유지하도록 설정 */
+            width: 500px;
+            height: 300px;
+        }
+        /* 모바일 환경에서 iframe 크기 조정 */
+        @media (max-width: 768px) {
+            .info-window iframe {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
         }
     </style>
 </head>
