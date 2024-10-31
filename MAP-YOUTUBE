@@ -18,7 +18,13 @@
             margin-top: 10vh;
         }
         .info-window {
-            width: 500px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .info-window iframe {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9; /* 16:9 비율을 유지하도록 설정 */
         }
     </style>
 </head>
