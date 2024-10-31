@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map with YouTube Videos</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
@@ -27,7 +27,7 @@
 
     <script>
         // 구글 맵 초기 설정
-        let currentInfoWindow;  // 현재 열려 있는 정보창을 저장할 변수
+        let currentInfoWindow;
 
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
@@ -35,22 +35,28 @@
                 zoom: 3,
             });
 
-            const markers = []; // 마커들을 저장할 배열
+            const markers = [];
 
-            // XLSX 파일을 불러와서 데이터 파싱
-            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")  // XLSX 파일의 실제 URL로 변경해야 합니다.
+            // XLSX 파일에서 데이터 불러오기
+            fetch("YOUR_FILE_PATH.xlsx")
                 .then(response => response.arrayBuffer())
                 .then(data => {
                     const workbook = XLSX.read(data, { type: "array" });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                    jsonData.forEach(location => {
-                        const lat = parseFloat(location.latitude);
-                        const lng = parseFloat(location.longitude);
-                        const name = location.location;
-                        const videoID = location['youtube link'];
+                    // 열 이름 추출 (첫 번째 행을 기준으로)
+                    const [headers, ...rows] = jsonData;
+
+                    // 각 행마다 필요한 데이터 추출
+                    rows.forEach(row => {
+                        const lat = parseFloat(row[headers.indexOf("latitude")]);
+                        const lng = parseFloat(row[headers.indexOf("longitude")]);
+                        const name = row[headers.indexOf("location")];
+                        const videoID = row[headers.indexOf("YouTube Link")];
+
+                        // latitude와 longitude가 0인 경우 마커를 표시하지 않음
+                        if (lat === 0 && lng === 0) return;
 
                         // 유튜브 embed URL 생성
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
@@ -87,8 +93,7 @@
 
                     // 마커 클러스터 생성
                     new markerClusterer.MarkerClusterer({ map, markers });
-                })
-                .catch(error => console.error("Error loading the XLSX file:", error));
+                });
         }
 
         // 페이지 로드 시 initMap 실행
