@@ -38,7 +38,7 @@
             const markers = []; // 마커들을 저장할 배열
 
             // XLSX 파일을 불러와서 데이터 파싱
-            fetch("https://https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")  // XLSX 파일의 실제 URL로 변경해야 합니다.
+            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")  // XLSX 파일의 실제 URL로 변경해야 합니다.
                 .then(response => response.arrayBuffer())
                 .then(data => {
                     const workbook = XLSX.read(data, { type: "array" });
