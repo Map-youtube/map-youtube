@@ -26,16 +26,6 @@
         .info-window h3, .info-window p {
             margin: 0;
         }
-        .close-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: #555;
-        }
         .small-text {
             font-size: 0.9em;
             color: gray;
@@ -107,8 +97,8 @@
                         const shortInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3>${place}</h3>
-                                    <p>${city}, ${country}</p>
+                                    <h3 style="display:inline-block;">${place}</h3>
+                                    <p style="margin-top: -5px;">${city}, ${country}</p>
                                     <p class="small-text">${category}</p>
                                 </div>
                             `
@@ -118,11 +108,11 @@
                         const fullInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <button class="close-btn" onclick="closeInfoWindow()">×</button>
-                                    <h3>${locationDescription}</h3>
+                                    <h3 style="display:inline-block;">${locationDescription}</h3>
                                     <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                     <p class="small-text">${category}</p>
-                                </div>`
+                                </div>
+                            `
                         });
 
                         // 마커에 마우스를 올렸을 때 짧은 정보창 열기
@@ -161,13 +151,6 @@
                     new markerClusterer.MarkerClusterer({ map, markers });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
-        }
-
-        // 정보창 닫기 버튼 기능
-        function closeInfoWindow() {
-            if (currentInfoWindow) {
-                currentInfoWindow.close();
-            }
         }
 
         window.onload = initMap;
