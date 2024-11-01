@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map with YouTube Videos</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
@@ -29,12 +29,10 @@
             font-size: 0.9em;
             color: gray;
         }
-        /* 기본 iframe 스타일 - PC 환경에서 고정 크기 */
         .info-window iframe {
             width: 500px;
             height: 300px;
         }
-        /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
         @media (max-width: 768px) {
             .info-window {
                 max-width: 700px;
@@ -62,7 +60,6 @@
 
     <script>
         let map, currentInfoWindow;
-        const zoomThreshold = 12;
         const markers = [];
 
         function initMap() {
@@ -116,6 +113,20 @@
                                 </div>`
                         });
 
+                        // 마커에 마우스를 올렸을 때 짧은 정보창 열기
+                        marker.addListener("mouseover", () => {
+                            shortInfoWindow.open({
+                                anchor: marker,
+                                map,
+                                shouldFocus: false,
+                            });
+                        });
+
+                        // 마커에서 마우스가 벗어났을 때 짧은 정보창 닫기
+                        marker.addListener("mouseout", () => {
+                            shortInfoWindow.close();
+                        });
+
                         // 마커 클릭 시 전체 정보창 표시 및 짧은 정보창 닫기
                         marker.addListener("click", () => {
                             if (currentInfoWindow) {
@@ -130,33 +141,12 @@
                             currentInfoWindow = fullInfoWindow;
                         });
 
-                        // 마커 및 짧은 정보창 저장
-                        marker.shortInfoWindow = shortInfoWindow;
+                        // 마커 저장
                         markers.push(marker);
                     });
 
                     // 마커 클러스터링 적용
                     new markerClusterer.MarkerClusterer({ map, markers });
-
-                    // 줌 변경 시 정보창 관리
-                    map.addListener("zoom_changed", () => {
-                        const currentZoom = map.getZoom();
-
-                        markers.forEach(marker => {
-                            if (currentInfoWindow) {
-                                currentInfoWindow.close();
-                            }
-                            if (currentZoom >= zoomThreshold) {
-                                marker.shortInfoWindow.open({
-                                    anchor: marker,
-                                    map,
-                                    shouldFocus: false, // 중심 이동 방지
-                                });
-                            } else {
-                                marker.shortInfoWindow.close();
-                            }
-                        });
-                    });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
         }
