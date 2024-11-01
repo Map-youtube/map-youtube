@@ -149,8 +149,7 @@
                     const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
                     google.maps.event.addListener(markerCluster, 'clusterclick', (cluster) => {
                         const clusterBounds = cluster.getBounds();
-                        map.fitBounds(clusterBounds);
-                        map.panToBounds(clusterBounds); // 클러스터 클릭 시 부드럽게 이동
+                        map.fitBounds(clusterBounds); // 클러스터 클릭 시 부드럽게 확대 및 이동
                     });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
