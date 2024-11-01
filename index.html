@@ -21,19 +21,9 @@
             width: 100%;
             max-width: 500px;
             padding: 0;
-            position: relative;
         }
         .info-window h3, .info-window p {
             margin: 0;
-        }
-        .close-button {
-            position: absolute;
-            top: 0;
-            right: 0;
-            color: red;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
         }
         .small-text {
             font-size: 0.9em;
@@ -106,7 +96,6 @@
                         const shortInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <span class="close-button" onclick="closeInfoWindow()">X</span>
                                     <h3>${place}</h3>
                                     <p>${city}, ${country}</p>
                                     <p class="small-text">${category}</p>
@@ -118,21 +107,11 @@
                         const fullInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <span class="close-button" onclick="closeInfoWindow()">X</span>
                                     <h3>${locationDescription}</h3>
                                     <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                     <p class="small-text">${category}</p>
-                                </div>
-                            `
+                                </div>`
                         });
-
-                        // 닫기 버튼 함수
-                        window.closeInfoWindow = function() {
-                            if (currentInfoWindow) {
-                                currentInfoWindow.close();
-                                currentInfoWindow = null;
-                            }
-                        };
 
                         // 마커에 마우스를 올렸을 때 짧은 정보창 열기
                         marker.addListener("mouseover", () => {
@@ -166,8 +145,12 @@
                         markers.push(marker);
                     });
 
-                    // 마커 클러스터링 적용
-                    new markerClusterer.MarkerClusterer({ map, markers });
+                    // 마커 클러스터링 적용 및 클릭 애니메이션 설정
+                    const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
+                    google.maps.event.addListener(markerCluster, 'clusterclick', (cluster) => {
+                        const clusterBounds = cluster.getBounds();
+                        map.fitBounds(clusterBounds); // 클러스터 클릭 시 부드럽게 확대 및 이동
+                    });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
         }
