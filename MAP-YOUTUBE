@@ -92,7 +92,6 @@
 
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
-                            map,
                             title: locationDescription
                         });
 
@@ -118,19 +117,23 @@
                             `
                         });
 
-                        // 마커 클릭 시 전체 정보창 표시
+                        // 마커 클릭 시 전체 정보창 표시 및 짧은 정보창 닫기
                         marker.addListener("click", () => {
                             if (currentInfoWindow) {
                                 currentInfoWindow.close();
                             }
+                            shortInfoWindow.close();
                             fullInfoWindow.open(map, marker);
                             currentInfoWindow = fullInfoWindow;
                         });
 
-                        // 마커 및 정보창 저장
+                        // 마커 및 짧은 정보창 저장
                         marker.shortInfoWindow = shortInfoWindow;
                         markers.push(marker);
                     });
+
+                    // 마커 클러스터링 적용
+                    new markerClusterer.MarkerClusterer({ map, markers });
 
                     // 줌 변경 시 정보창 관리
                     map.addListener("zoom_changed", () => {
