@@ -125,7 +125,7 @@
                             fullInfoWindow.open({
                                 anchor: marker,
                                 map,
-                                shouldFocus: false, // 클릭 시 지도 이동을 방지
+                                shouldFocus: false,
                             });
                             currentInfoWindow = fullInfoWindow;
                         });
@@ -150,7 +150,7 @@
                                 marker.shortInfoWindow.open({
                                     anchor: marker,
                                     map,
-                                    shouldFocus: false, // 자동으로 중심 이동 방지
+                                    shouldFocus: false, // 중심 이동 방지
                                 });
                             } else {
                                 marker.shortInfoWindow.close();
