@@ -3,70 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map with YouTube Videos</title>
+    <title>Map with YouTube Videos and Filters</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        #map {
-            height: 70vh;
-            width: 100%;
-            margin-top: 10vh;
-        }
-        .info-window {
-            width: 100%;
-            max-width: 500px;
-            padding: 0;
-        }
-        .info-window h3 {
-            margin: 0;
-        }
-        /* 기본 iframe 스타일 - PC 환경에서 고정 크기 */
-        .info-window iframe {
-            width: 500px;
-            height: 300px;
-        }
-        /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
+        body { margin: 0; padding: 0; }
+        #map { height: 70vh; width: 100%; margin-top: 10vh; }
+        #filters { display: flex; justify-content: space-around; margin: 1em; }
+        .info-window { width: 100%; max-width: 500px; padding: 0; }
+        .info-window h3 { margin: 0; }
+        .info-window iframe { width: 500px; height: 300px; }
         @media (max-width: 768px) {
-            .info-window {
-                max-width: 700px;
-            }
-            .info-window iframe {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 16 / 9;
-            }
-        }
-        @media (max-width: 480px) {
-            .info-window {
-                max-width: 450px;
-            }
-            .info-window iframe {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 16 / 9;
-            }
+            .info-window { max-width: 700px; }
+            .info-window iframe { width: 100%; height: auto; aspect-ratio: 16 / 9; }
         }
     </style>
 </head>
 <body>
+    <div id="filters">
+        <select id="countryFilter"><option value="ALL">All Countries</option></select>
+        <select id="cityFilter"><option value="ALL">All Cities</option></select>
+        <select id="categoryFilter"><option value="ALL">All Categories</option></select>
+    </div>
     <div id="map"></div>
 
     <script>
-        let currentInfoWindow;
+        let map, markers = [], currentInfoWindow;
+        const countryFilter = document.getElementById('countryFilter');
+        const cityFilter = document.getElementById('cityFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
 
         function initMap() {
-            const map = new google.maps.Map(document.getElementById("map"), {
+            map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 15, lng: 150 },
                 zoom: 3,
             });
+            loadData();
+        }
 
-            const markers = [];
-
+        function loadData() {
             fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
                 .then(response => response.arrayBuffer())
                 .then(data => {
@@ -75,48 +51,107 @@
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet);
 
+                    const uniqueCountries = new Set(), uniqueCities = new Set(), uniqueCategories = new Set();
+
                     jsonData.forEach(location => {
-                        const lat = parseFloat(location.latitude);
-                        const lng = parseFloat(location.longitude);
-                        const place = location.Location;
-                        const city = location.CITY;
-                        const country = location.COUNTRY;
-                        const videoID = location['YouTube Link'];
-
-                        // 위치 정보와 YouTube 링크를 포함하여 정보창 콘텐츠 생성
-                        const locationDescription = `${place}, ${city}, ${country}`;
-                        const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
-
-                        const marker = new google.maps.Marker({
-                            position: { lat, lng },
-                            map,
-                            title: locationDescription
-                        });
-
-                        // 정보창 설정
-                        const infoWindow = new google.maps.InfoWindow({
-                            content: `
-                                <div class="info-window">
-                                    <h3>${locationDescription}</h3>
-                                    <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                                </div>
-                            `
-                        });
-
-                        marker.addListener("click", () => {
-                            if (currentInfoWindow) {
-                                currentInfoWindow.close();
-                            }
-                            infoWindow.open(map, marker);
-                            currentInfoWindow = infoWindow;
-                        });
-
-                        markers.push(marker);
+                        uniqueCountries.add(location.COUNTRY);
+                        uniqueCities.add(location.CITY);
+                        if (location.Category) {
+                            location.Category.split(',').forEach(cat => uniqueCategories.add(cat.trim()));
+                        }
+                        createMarker(location);
                     });
 
-                    new markerClusterer.MarkerClusterer({ map, markers });
+                    updateFilterOptions(countryFilter, uniqueCountries);
+                    updateFilterOptions(cityFilter, uniqueCities);
+                    updateFilterOptions(categoryFilter, uniqueCategories);
+
+                    addFilterListeners();
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
+        }
+
+        function createMarker(location) {
+            const lat = parseFloat(location.latitude);
+            const lng = parseFloat(location.longitude);
+            const place = location.Location;
+            const city = location.CITY;
+            const country = location.COUNTRY;
+            const categories = location.Category ? location.Category.split(',').map(cat => cat.trim()) : [];
+            const videoID = location['YouTube Link'];
+            const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
+            const locationDescription = `${place}, ${city}, ${country}`;
+
+            const marker = new google.maps.Marker({
+                position: { lat, lng },
+                map,
+                title: locationDescription,
+                customData: { country, city, categories }
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div class="info-window"><h3>${locationDescription}</h3><iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`
+            });
+
+            marker.addListener("click", () => {
+                if (currentInfoWindow) currentInfoWindow.close();
+                infoWindow.open(map, marker);
+                currentInfoWindow = infoWindow;
+            });
+
+            markers.push(marker);
+        }
+
+        function updateFilterOptions(filterElement, options) {
+            filterElement.innerHTML = '<option value="ALL">All</option>';
+            [...options].sort().forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                filterElement.appendChild(opt);
+            });
+        }
+
+        function addFilterListeners() {
+            countryFilter.addEventListener('change', applyFilters);
+            cityFilter.addEventListener('change', applyFilters);
+            categoryFilter.addEventListener('change', applyFilters);
+        }
+
+        function applyFilters() {
+            const selectedCountry = countryFilter.value;
+            const selectedCity = cityFilter.value;
+            const selectedCategory = categoryFilter.value;
+
+            const visibleMarkers = markers.filter(marker => {
+                const { country, city, categories } = marker.customData;
+                const countryMatch = selectedCountry === "ALL" || country === selectedCountry;
+                const cityMatch = selectedCity === "ALL" || city === selectedCity;
+                const categoryMatch = selectedCategory === "ALL" || categories.includes(selectedCategory);
+                return countryMatch && cityMatch && categoryMatch;
+            });
+
+            markers.forEach(marker => marker.setMap(null));
+            visibleMarkers.forEach(marker => marker.setMap(map));
+
+            updateAvailableFilters(visibleMarkers);
+        }
+
+        function updateAvailableFilters(filteredMarkers) {
+            const filteredCountries = new Set();
+            const filteredCities = new Set();
+            const filteredCategories = new Set();
+
+            filteredMarkers.forEach(marker => {
+                const { country, city, categories } = marker.customData;
+                filteredCountries.add(country);
+                filteredCities.add(city);
+                categories.forEach(cat => filteredCategories.add(cat));
+            });
+
+            updateFilterOptions(countryFilter, filteredCountries);
+            updateFilterOptions(cityFilter, filteredCities);
+            updateFilterOptions(categoryFilter, filteredCategories);
         }
 
         window.onload = initMap;
