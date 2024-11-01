@@ -113,8 +113,7 @@
                                     <h3>${locationDescription}</h3>
                                     <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                     <p class="small-text">${category}</p>
-                                </div>
-                            `
+                                </div>`
                         });
 
                         // 마커 클릭 시 전체 정보창 표시 및 짧은 정보창 닫기
@@ -123,7 +122,11 @@
                                 currentInfoWindow.close();
                             }
                             shortInfoWindow.close();
-                            fullInfoWindow.open(map, marker);
+                            fullInfoWindow.open({
+                                anchor: marker,
+                                map,
+                                shouldFocus: false, // 클릭 시 지도 이동을 방지
+                            });
                             currentInfoWindow = fullInfoWindow;
                         });
 
@@ -144,7 +147,11 @@
                                 currentInfoWindow.close();
                             }
                             if (currentZoom >= zoomThreshold) {
-                                marker.shortInfoWindow.open(map, marker);
+                                marker.shortInfoWindow.open({
+                                    anchor: marker,
+                                    map,
+                                    shouldFocus: false, // 자동으로 중심 이동 방지
+                                });
                             } else {
                                 marker.shortInfoWindow.close();
                             }
