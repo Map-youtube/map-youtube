@@ -20,7 +20,7 @@
         .info-window {
             width: 100%;
             max-width: 500px;
-            padding: 0; /* 정보창 내 여백 제거 */
+            padding: 0;
         }
         .info-window h3 {
             margin: 0;
@@ -33,7 +33,7 @@
         /* 모바일 환경에서 정보창 및 iframe 크기 조정 */
         @media (max-width: 768px) {
             .info-window {
-                max-width: 700px; /* 모바일에서 정보창 너비를 화면의 100%로 설정 */
+                max-width: 700px;
             }
             .info-window iframe {
                 width: 100%;
@@ -57,8 +57,7 @@
     <div id="map"></div>
 
     <script>
-        // 구글 맵 초기 설정
-        let currentInfoWindow;  // 현재 열려 있는 정보창을 저장할 변수
+        let currentInfoWindow;
 
         function initMap() {
             const map = new google.maps.Map(document.getElementById("map"), {
@@ -66,10 +65,9 @@
                 zoom: 3,
             });
 
-            const markers = []; // 마커들을 저장할 배열
+            const markers = [];
 
-            // XLSX 파일을 불러와서 데이터 파싱
-            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")  // XLSX 파일의 실제 URL로 변경해야 합니다.
+            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
                 .then(response => response.arrayBuffer())
                 .then(data => {
                     const workbook = XLSX.read(data, { type: "array" });
@@ -80,30 +78,31 @@
                     jsonData.forEach(location => {
                         const lat = parseFloat(location.latitude);
                         const lng = parseFloat(location.longitude);
-                        const name = location.Location;
+                        const place = location.Location;
+                        const city = location.CITY;
+                        const country = location.COUNTRY;
                         const videoID = location['YouTube Link'];
 
-                        // 유튜브 embed URL 생성
+                        // 위치 정보와 YouTube 링크를 포함하여 정보창 콘텐츠 생성
+                        const locationDescription = `${place}, ${city}, ${country}`;
                         const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
 
-                        // 마커 생성
                         const marker = new google.maps.Marker({
                             position: { lat, lng },
                             map,
-                            title: name
+                            title: locationDescription
                         });
 
                         // 정보창 설정
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3>${name}</h3>
+                                    <h3>${locationDescription}</h3>
                                     <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                 </div>
                             `
                         });
 
-                        // 마커 클릭 시 기존 정보창 닫고 새 정보창 열기
                         marker.addListener("click", () => {
                             if (currentInfoWindow) {
                                 currentInfoWindow.close();
@@ -112,17 +111,14 @@
                             currentInfoWindow = infoWindow;
                         });
 
-                        // 마커 배열에 추가
                         markers.push(marker);
                     });
 
-                    // 마커 클러스터 생성
                     new markerClusterer.MarkerClusterer({ map, markers });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
         }
 
-        // 페이지 로드 시 initMap 실행
         window.onload = initMap;
     </script>
 </body>
