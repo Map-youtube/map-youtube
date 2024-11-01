@@ -63,14 +63,13 @@
     <script>
         let map, currentInfoWindow;
         const zoomThreshold = 12;
+        const markers = [];
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 15, lng: 150 },
                 zoom: 3,
             });
-
-            const markers = [];
 
             fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
                 .then(response => response.arrayBuffer())
@@ -97,53 +96,57 @@
                             title: locationDescription
                         });
 
-                        const getBasicInfoContent = () => `
-                            <div class="info-window">
-                                <h3 class="info-title">${place}</h3>
-                                <p>${city}, ${country}</p>
-                                <p class="small-text">${category}</p>
-                            </div>
-                        `;
-
-                        const getFullInfoContent = () => `
-                            <div class="info-window">
-                                <h3>${locationDescription}</h3>
-                                <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                                <p class="small-text">${category}</p>
-                            </div>
-                        `;
-
-                        let infoWindow = new google.maps.InfoWindow({
-                            content: getBasicInfoContent()
+                        // 짧은 정보창 내용 생성
+                        const shortInfoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div class="info-window">
+                                    <h3>${place}</h3>
+                                    <p>${city}, ${country}</p>
+                                    <p class="small-text">${category}</p>
+                                </div>
+                            `
                         });
 
+                        // 전체 정보창 내용 생성
+                        const fullInfoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div class="info-window">
+                                    <h3>${locationDescription}</h3>
+                                    <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                    <p class="small-text">${category}</p>
+                                </div>
+                            `
+                        });
+
+                        // 마커 클릭 시 전체 정보창 표시
                         marker.addListener("click", () => {
-                            if (currentInfoWindow) currentInfoWindow.close();
-                            infoWindow.close();
-                            
-                            // 줌 레벨에 따라 정보창 내용 선택
-                            if (map.getZoom() >= zoomThreshold) {
-                                infoWindow = new google.maps.InfoWindow({ content: getBasicInfoContent() });
-                            } else {
-                                infoWindow = new google.maps.InfoWindow({ content: getFullInfoContent() });
+                            if (currentInfoWindow) {
+                                currentInfoWindow.close();
                             }
-
-                            infoWindow.open(map, marker);
-                            currentInfoWindow = infoWindow;
+                            fullInfoWindow.open(map, marker);
+                            currentInfoWindow = fullInfoWindow;
                         });
 
-                        // 텍스트 클릭 시 전체 정보창 보이기
-                        marker.addListener("click", (event) => {
-                            const element = event.target;
-                            if (element && element.classList.contains("info-title")) {
-                                infoWindow.setContent(getFullInfoContent());
-                            }
-                        });
-
+                        // 마커 및 정보창 저장
+                        marker.shortInfoWindow = shortInfoWindow;
                         markers.push(marker);
                     });
 
-                    new markerClusterer.MarkerClusterer({ map, markers });
+                    // 줌 변경 시 정보창 관리
+                    map.addListener("zoom_changed", () => {
+                        const currentZoom = map.getZoom();
+
+                        markers.forEach(marker => {
+                            if (currentInfoWindow) {
+                                currentInfoWindow.close();
+                            }
+                            if (currentZoom >= zoomThreshold) {
+                                marker.shortInfoWindow.open(map, marker);
+                            } else {
+                                marker.shortInfoWindow.close();
+                            }
+                        });
+                    });
                 })
                 .catch(error => console.error("Error loading the XLSX file:", error));
         }
