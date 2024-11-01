@@ -26,6 +26,15 @@
         .info-window h3, .info-window p {
             margin: 0;
         }
+        .close-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
         .small-text {
             font-size: 0.9em;
             color: gray;
@@ -97,8 +106,9 @@
                         const shortInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3 style="display:inline-block;">${place}</h3>
-                                    <p style="margin-top: -5px;">${city}, ${country}</p>
+                                    <span class="close-button" onclick="closeInfoWindow()">X</span>
+                                    <h3>${place}</h3>
+                                    <p>${city}, ${country}</p>
                                     <p class="small-text">${category}</p>
                                 </div>
                             `
@@ -108,12 +118,21 @@
                         const fullInfoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
-                                    <h3 style="display:inline-block;">${locationDescription}</h3>
+                                    <span class="close-button" onclick="closeInfoWindow()">X</span>
+                                    <h3>${locationDescription}</h3>
                                     <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                                     <p class="small-text">${category}</p>
                                 </div>
                             `
                         });
+
+                        // 닫기 버튼 함수
+                        window.closeInfoWindow = function() {
+                            if (currentInfoWindow) {
+                                currentInfoWindow.close();
+                                currentInfoWindow = null;
+                            }
+                        };
 
                         // 마커에 마우스를 올렸을 때 짧은 정보창 열기
                         marker.addListener("mouseover", () => {
