@@ -1,92 +1,156 @@
-<script>
-    let map, currentInfoWindow;
-    const markers = [];
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map with YouTube Videos</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 70vh;
+            width: 100%;
+            margin-top: 10vh;
+        }
+        .info-window {
+            width: 100%;
+            max-width: 500px;
+            padding: 0;
+        }
+        .info-window h3, .info-window p {
+            margin: 0;
+        }
+        .small-text {
+            font-size: 0.9em;
+            color: gray;
+        }
+        .info-window iframe {
+            width: 500px;
+            height: 300px;
+        }
+        @media (max-width: 768px) {
+            .info-window {
+                max-width: 700px;
+            }
+            .info-window iframe {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
+        }
+        @media (max-width: 480px) {
+            .info-window {
+                max-width: 450px;
+            }
+            .info-window iframe {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
 
-    function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 15, lng: 150 },
-            zoom: 3,
+    <script>
+        let map, currentInfoWindow;
+        const markers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 15, lng: 150 },
+                zoom: 3,
+            });
+
+            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+jsonData.forEach(location => {
+    const latLngString = location['latitude, longitude'];
+    const [lat, lng] = latLngString.split(',').map(coord => parseFloat(coord.trim()));
+    const place = location.Location;
+    const city = location.CITY;
+    const country = location.COUNTRY;
+    const category = location.Category || "";
+    const videoID = location['YouTube Link'];
+    const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
+    const locationDescription = `${place}, ${city}, ${country}`;
+
+    const marker = new google.maps.Marker({
+        position: { lat, lng },
+        title: locationDescription
+    });
+
+    const shortInfoWindow = new google.maps.InfoWindow({
+        content: `
+            <div class="info-window">
+                <h3>${place}</h3>
+                <p>${city}, ${country}</p>
+                <p class="small-text">${category}</p>
+            </div>
+        `
+    });
+
+    const fullInfoWindow = new google.maps.InfoWindow({
+        content: `
+            <div class="info-window">
+                <h3>${locationDescription}</h3>
+                <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                <p class="small-text">${category}</p>
+            </div>`
+    });
+
+    marker.addListener("mouseover", () => {
+        shortInfoWindow.open({
+            anchor: marker,
+            map,
+            shouldFocus: false,
         });
+    });
 
-        fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
-            .then(response => response.arrayBuffer())
-            .then(data => {
-                const workbook = XLSX.read(data, { type: "array" });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(sheet);
+    marker.addListener("mouseout", () => {
+        shortInfoWindow.close();
+    });
 
-                jsonData.forEach(location => {
-                    const latLngString = location['latitude, longitude'];
-                    const [lat, lng] = latLngString.split(',').map(coord => parseFloat(coord.trim()));
-                    const place = location.Location;
-                    const city = location.CITY;
-                    const country = location.COUNTRY;
-                    const category = location.Category || "";
-                    const videoID = location['YouTube Link'];
-                    const embedURL = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&autoplay=1&mute=1`;
-                    const locationDescription = `${place}, ${city}, ${country}`;
+    marker.addListener("click", () => {
+        if (currentInfoWindow) {
+            currentInfoWindow.close();
+        }
+        shortInfoWindow.close();
+        fullInfoWindow.open({
+            anchor: marker,
+            map,
+            shouldFocus: false,
+        });
+        currentInfoWindow = fullInfoWindow;
+    });
 
-                    const marker = new google.maps.Marker({
-                        position: { lat, lng },
-                        title: locationDescription
+    markers.push(marker);
+});
+
+
+                    // 마커 클러스터링 적용 및 클릭 애니메이션 설정
+                    const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
+                    google.maps.event.addListener(markerCluster, 'clusterclick', (cluster) => {
+                        const clusterBounds = cluster.getBounds();
+                        map.fitBounds(clusterBounds); // 클러스터 클릭 시 부드럽게 확대 및 이동
                     });
+                })
+                .catch(error => console.error("Error loading the XLSX file:", error));
+        }
 
-                    const shortInfoWindow = new google.maps.InfoWindow({
-                        content: `
-                            <div class="info-window">
-                                <h3>${place}</h3>
-                                <p>${city}, ${country}</p>
-                                <p class="small-text">${category}</p>
-                            </div>
-                        `
-                    });
-
-                    const fullInfoWindow = new google.maps.InfoWindow({
-                        content: `
-                            <div class="info-window">
-                                <h3>${locationDescription}</h3>
-                                <iframe src="${embedURL}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                                <p class="small-text">${category}</p>
-                            </div>`
-                    });
-
-                    marker.addListener("mouseover", () => {
-                        shortInfoWindow.open({
-                            anchor: marker,
-                            map,
-                            shouldFocus: false,
-                        });
-                    });
-
-                    marker.addListener("mouseout", () => {
-                        shortInfoWindow.close();
-                    });
-
-                    marker.addListener("click", () => {
-                        if (currentInfoWindow) {
-                            currentInfoWindow.close();
-                        }
-                        shortInfoWindow.close();
-                        fullInfoWindow.open({
-                            anchor: marker,
-                            map,
-                            shouldFocus: false,
-                        });
-                        currentInfoWindow = fullInfoWindow;
-                    });
-
-                    markers.push(marker);
-                });
-
-                const markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
-                google.maps.event.addListener(markerCluster, 'clusterclick', (cluster) => {
-                    const clusterBounds = cluster.getBounds();
-                    map.fitBounds(clusterBounds);
-                });
-            })
-            .catch(error => console.error("Error loading the XLSX file:", error));
-    }
-
-    window.onload = initMap;
-</script>
+        window.onload = initMap;
+    </script>
+</body>
+</html>
