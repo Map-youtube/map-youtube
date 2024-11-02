@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map with YouTube Videos</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjMNd7u5X5jetqbFXJEr-hF-Ku8_oReGI"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.9/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsm@0.16.9/dist/xlsm.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <style>
         body {
@@ -68,13 +68,13 @@
                 zoom: 3,
             });
 
-            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
+            fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsm")
                 .then(response => response.arrayBuffer())
                 .then(data => {
-                    const workbook = XLSX.read(data, { type: "array" });
+                    const workbook = xlsm.read(data, { type: "array" });
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet);
+                    const jsonData = xlsm.utils.sheet_to_json(sheet);
 
 jsonData.forEach(location => {
     const latLngString = location['latitude, longitude'];
@@ -147,7 +147,7 @@ jsonData.forEach(location => {
                         map.fitBounds(clusterBounds); // 클러스터 클릭 시 부드럽게 확대 및 이동
                     });
                 })
-                .catch(error => console.error("Error loading the XLSX file:", error));
+                .catch(error => console.error("Error loading the xlsm file:", error));
         }
 
         window.onload = initMap;
