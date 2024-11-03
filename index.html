@@ -180,7 +180,13 @@
                 .catch(error => console.error("Error loading the XLSX file:", error));
         }
 
-        window.onload = initMap;
+
+        // 브라우저의 기본 언어에 맞춰 지도 초기화
+        window.onload = function() {
+            const userLang = navigator.language || navigator.userLanguage;
+            document.documentElement.lang = userLang; // HTML lang 속성을 사용자의 언어로 설정
+            initMap();
+        };
     </script>
 </body> 
 </html> 
