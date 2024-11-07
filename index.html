@@ -89,32 +89,6 @@
             font-size: 1.2em;
             color: lightgray;
         }
-        /* 유튜브 비디오 하단 링크 스타일 */
-        #youtube-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px auto;
-        }
-        #youtube-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-align: center;
-            color: #333;
-        }
-        #youtube-link iframe {
-            width: 100%;
-            max-width: 560px;
-            height: auto;
-            aspect-ratio: 16 / 9; /* PC, 모바일 환경 모두 비율 유지 */
-        }
-        @media (min-width: 769px) {
-            #youtube-link iframe {
-                max-width: 672px; /* 120% 크기 */
-                height: calc(672px * 9 / 16); /* 비율에 맞춰 높이 조정 */
-            }
-        }
     </style>
 </head>
 <body>
@@ -128,12 +102,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <div id="map"></div>
 
-    <!-- 유튜브 제목과 링크 추가 -->
-    <div id="youtube-link">
-        <div id="youtube-title">2024 US Poll Counting | US Poll Result Live | Kamala Vs Trump | Who Will Win Trump Or Kamala? - YouTube Stream</div>
-        <iframe src="https://www.youtube.com/embed/AcMnXigCFio?si=arAt4JnO41Co3DG-" frameborder="0" allowfullscreen></iframe>
-    </div>
-
 <script>
     let map, currentInfoWindow;
     const markers = [];
@@ -146,7 +114,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         map = new google.maps.Map(document.getElementById("map"), {
             center: initialCenter,
             zoom: initialZoom,
-            gestureHandling: "greedy" // ctrl 없이 확대/축소 가능
         });
 
         fetch("https://raw.githubusercontent.com/Map-youtube/map-youtube/main/location.xlsx")
@@ -237,4 +204,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 
 </body> 
-</html>
+</html> 
