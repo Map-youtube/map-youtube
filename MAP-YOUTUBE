@@ -68,7 +68,7 @@
             position: absolute;
             top: 0;
             width: 100%;
-            height: 10vh; /* 배너 높이 원래대로 */
+            height: 10vh;
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
             display: flex;
@@ -81,7 +81,7 @@
         }
         .top-banner a {
             color: white;
-            font-size: 2.25em; /* 글자 크기를 1.5배 수준으로 조정 */
+            font-size: 2.25em;
             font-weight: bold;
             text-decoration: none;
             cursor: pointer;
@@ -98,8 +98,8 @@
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <div class="top-banner">
-        <a href="#" onclick="window.location.reload()">LIVECAM-VOYAGER.COM</a> <!-- 새로고침 기능으로 수정 -->
-        <div class="subtitle">Travel from Your home with YOUTUBE LIVE</div>
+        <a href="#" onclick="window.location.reload()">LIVECAM-VOYAGER.COM</a>
+        <div class="subtitle" id="subtitle">Travel from Your home with YOUTUBE LIVE</div>
     </div>
     <div id="map"></div>
 
@@ -108,8 +108,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const markers = [];
 
     function initMap() {
-        const isMobile = window.innerWidth <= 768; // 모바일 기기 기준 화면 너비 설정
-        const initialZoom = isMobile ? 2 : 3; // 모바일에서는 줌 레벨을 더 축소
+        const isMobile = window.innerWidth <= 768;
+        const initialZoom = isMobile ? 2 : 3;
         const initialCenter = isMobile ? { lat: 25, lng: 65 } : { lat: 15, lng: 150 };
 
         map = new google.maps.Map(document.getElementById("map"), {
@@ -198,11 +198,61 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     window.onload = function() {
-        const userLang = navigator.language || navigator.userLanguage;
+        const userLang = navigator.language.slice(0, 2);
         document.documentElement.lang = userLang;
+
+        const titles = {
+            "ko": "유튜브 라이브로 집에서 떠나는 랜선 여행",
+            "en": "Travel from Your home with YOUTUBE LIVE",
+            "es": "Viaja desde casa con YOUTUBE LIVE",
+            "zh": "在家中通过 YouTube 直播环游世界",
+            "hi": "घर बैठे YOUTUBE LIVE से यात्रा करें",
+            "ar": "سافر من منزلك عبر YOUTUBE LIVE",
+            "pt": "Viaje de sua casa com o YOUTUBE LIVE",
+            "ru": "Путешествуйте из дома с YOUTUBE LIVE",
+            "ja": "自宅から YOUTUBE ライブで旅を",
+            "fr": "Voyagez de chez vous avec YOUTUBE LIVE",
+            "de": "Reisen Sie von zu Hause mit YOUTUBE LIVE",
+            "th": "ท่องเที่ยวจากที่บ้านด้วย YOUTUBE LIVE"
+        };
+
+        const subtitles = {
+            "ko": "유튜브 라이브로 집에서 떠나는 랜선 여행",
+            "en": "Travel from Your home with YOUTUBE LIVE",
+            "es": "Viaja desde casa con YOUTUBE LIVE",
+            "zh": "在家中通过 YouTube 直播环游世界",
+            "hi": "घर बैठे YOUTUBE LIVE से यात्रा करें",
+            "ar": "سافر من منزلك عبر YOUTUBE LIVE",
+            "pt": "Viaje de sua casa com o YOUTUBE LIVE",
+            "ru": "Путешествуйте из дома с YOUTUBE LIVE",
+            "ja": "自宅から YOUTUBE ライブで旅を",
+            "fr": "Voyagez de chez vous avec YOUTUBE LIVE",
+            "de": "Reisen Sie von zu Hause mit YOUTUBE LIVE",
+            "th": "ท่องเที่ยวจากที่บ้านด้วย YOUTUBE LIVE"
+        };
+
+        const descriptions = {
+            "ko": "Google 지도에서 다양한 나라의 도시, 자연, 명소를 유튜브 라이브 영상을 통해 탐험하세요. 집에서 편안하게 세계 여행을 즐기며 꿈의 여행지를 찾아보세요.",
+            "en": "Explore cities, nature, and landmarks from various countries on Google Maps through live YouTube videos. Enjoy a world tour from the comfort of your home and discover your next dream destination.",
+            "es": "Explora ciudades, naturaleza y monumentos de varios países en Google Maps a través de videos en vivo de YouTube. Disfruta de un tour mundial desde la comodidad de tu hogar y descubre tu próximo destino soñado.",
+            "zh": "通过 YouTube 直播视频，在 Google 地图上探索来自各国的城市、自然和地标。在家舒适地享受全球旅游，发现下一个梦想目的地。",
+            "hi": "Google मैप्स पर विभिन्न देशों के शहरों, प्रकृति और स्थलों को लाइव YouTube वीडियो के माध्यम से एक्सप्लोर करें। अपने घर की आरामदायक यात्रा से दुनिया का भ्रमण करें और अपनी अगली सपनों की मंजिल खोजें।",
+            "ar": "استكشف المدن والطبيعة والمعالم من مختلف البلدان على خرائط جوجل من خلال مقاطع الفيديو المباشرة على يوتيوب. استمتع بجولة حول العالم من راحة منزلك واكتشف وجهة أحلامك التالية.",
+            "pt": "Explore cidades, natureza e marcos de vários países no Google Maps através de vídeos ao vivo no YouTube. Aproveite um tour mundial do conforto de sua casa e descubra seu próximo destino dos sonhos.",
+            "ru": "Исследуйте города, природу и достопримечательности разных стран на Google Картах с помощью живых видео на YouTube. Наслаждайтесь мировым туром, не выходя из дома, и откройте для себя следующее место своей мечты.",
+            "ja": "Google マップで様々な国の都市、自然、名所を YouTube ライブ動画で探険しよう。自宅の快適さから世界を旅し、次の夢の目的地を見つけよう。",
+            "fr": "Explorez les villes, la nature et les monuments de divers pays sur Google Maps via des vidéos en direct sur YouTube. Profitez d'un tour du monde depuis le confort de votre maison et découvrez votre prochaine destination de rêve.",
+            "de": "Entdecken Sie Städte, Natur und Sehenswürdigkeiten aus verschiedenen Ländern auf Google Maps durch Live-YouTube-Videos. Genießen Sie eine Weltreise aus dem Komfort Ihres Zuhauses und entdecken Sie Ihr nächstes Traumziel.",
+            "th": "สำรวจเมือง ธรรมชาติ และสถานที่สำคัญจากหลายประเทศบน Google Maps ผ่านวิดีโอ YouTube สด เพลิดเพลินกับการท่องโลกจากบ้านของคุณและค้นหาสถานที่ท่องเที่ยวในฝันแห่งต่อไป"
+        };
+
+        document.title = titles[userLang] || titles["en"];
+        document.getElementById("subtitle").textContent = subtitles[userLang] || subtitles["en"];
+        document.querySelector('meta[name="description"]').setAttribute('content', descriptions[userLang] || descriptions["en"]);
+
         initMap();
     };
 </script>
 
 </body> 
-</html> 
+</html>
